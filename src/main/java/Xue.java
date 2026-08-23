@@ -17,6 +17,7 @@ public class Xue {
                 + " ██ ██   ██   ██  ██\n"
                 + "██   ██   █████   ███████";
         String[] todo = new String[100];
+        boolean[] completed = new boolean[100];
         int counter = 0;
 
         System.out.println(separator);
@@ -36,8 +37,28 @@ public class Xue {
             }
 
             if (command.equals("list")) {
+                System.out.println("Here are the tasks in your list:");
                 for (int i = 0; i < counter; i++) {
-                    System.out.println((i + 1) + ". " + todo[i]);
+                    String status = completed[i] ? "[X]" : "[ ]";
+                    System.out.println((i + 1) + "." + status + " " + todo[i]);
+                }
+                System.out.println(separator);
+                continue;
+            }
+
+            if (command.startsWith("mark ")) {
+                String taskNumber = command.substring(5).trim();
+                try {
+                    int index = Integer.parseInt(taskNumber) - 1;
+                    if (index >= 0 && index < counter) {
+                        completed[index] = true;
+                        System.out.println("Nice! I've marked this task as done:");
+                        System.out.println("  [X] " + todo[index]);
+                    } else {
+                        System.out.println("That task number does not exist.");
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Please provide a valid task number.");
                 }
                 System.out.println(separator);
                 continue;
