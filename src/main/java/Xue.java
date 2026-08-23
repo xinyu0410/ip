@@ -16,8 +16,7 @@ public class Xue {
                 + "  ███    ██   ██  █████\n"
                 + " ██ ██   ██   ██  ██\n"
                 + "██   ██   █████   ███████";
-        String[] todo = new String[100];
-        boolean[] completed = new boolean[100];
+        Task[] todo = new Task[100];
         int counter = 0;
 
         System.out.println(separator);
@@ -39,8 +38,8 @@ public class Xue {
             if (command.equals("list")) {
                 System.out.println("Here are the tasks in your list:");
                 for (int i = 0; i < counter; i++) {
-                    String status = completed[i] ? "[X]" : "[ ]";
-                    System.out.println((i + 1) + "." + status + " " + todo[i]);
+                    System.out.println((i + 1) + ".[" + todo[i].getStatusIcon() + "] "
+                            + todo[i].getDescription());
                 }
                 System.out.println(separator);
                 continue;
@@ -51,9 +50,9 @@ public class Xue {
                 try {
                     int index = Integer.parseInt(taskNumber) - 1;
                     if (index >= 0 && index < counter) {
-                        completed[index] = true;
+                        todo[index].markAsDone();
                         System.out.println("Nice! I've marked this task as done:");
-                        System.out.println("  [X] " + todo[index]);
+                        System.out.println("  [X] " + todo[index].getDescription());
                     } else {
                         System.out.println("That task number does not exist.");
                     }
@@ -69,9 +68,9 @@ public class Xue {
                 try {
                     int index = Integer.parseInt(taskNumber) - 1;
                     if (index >= 0 && index < counter) {
-                        completed[index] = false;
+                        todo[index].markAsNotDone();
                         System.out.println("OK, I've marked this task as not done yet:");
-                        System.out.println("  [ ] " + todo[index]);
+                        System.out.println("  [ ] " + todo[index].getDescription());
                     } else {
                         System.out.println("That task number does not exist.");
                     }
@@ -82,7 +81,7 @@ public class Xue {
                 continue;
             }
 
-            todo[counter] = command;
+            todo[counter] = new Task(command);
             counter++;
             System.out.println("added: " + command);
             System.out.println(separator);
