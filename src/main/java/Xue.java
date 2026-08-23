@@ -16,6 +16,8 @@ public class Xue {
                 + "  ███    ██   ██  █████\n"
                 + " ██ ██   ██   ██  ██\n"
                 + "██   ██   █████   ███████";
+        String[] todo = new String[100];
+        int counter = 0;
 
         System.out.println(separator);
         System.out.println(banner);
@@ -33,7 +35,17 @@ public class Xue {
                 break;
             }
 
-            System.out.println(command);
+            if (command.equals("list")) {
+                for (int i = 0; i < counter; i++) {
+                    System.out.println((i + 1) + ". " + todo[i]);
+                }
+                System.out.println(separator);
+                continue;
+            }
+
+            todo[counter] = command;
+            counter++;
+            System.out.println("added: " + command);
             System.out.println(separator);
         }
     }
