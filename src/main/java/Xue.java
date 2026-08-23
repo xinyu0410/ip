@@ -64,6 +64,24 @@ public class Xue {
                 continue;
             }
 
+            if (command.startsWith("unmark ")) {
+                String taskNumber = command.substring(7).trim();
+                try {
+                    int index = Integer.parseInt(taskNumber) - 1;
+                    if (index >= 0 && index < counter) {
+                        completed[index] = false;
+                        System.out.println("OK, I've marked this task as not done yet:");
+                        System.out.println("  [ ] " + todo[index]);
+                    } else {
+                        System.out.println("That task number does not exist.");
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Please provide a valid task number.");
+                }
+                System.out.println(separator);
+                continue;
+            }
+
             todo[counter] = command;
             counter++;
             System.out.println("added: " + command);
