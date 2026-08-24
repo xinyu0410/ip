@@ -53,6 +53,14 @@ public class Xue {
                     todo[index].markAsNotDone();
                     System.out.println("There. I've undone it. Try to make up your mind next time:");
                     System.out.println("  [ ] " + todo[index].getDescription());
+                } else if (command.equals("delete") || command.startsWith("delete ")) {
+                    int index = getTaskIndex(command, "delete", counter);
+                    Task deletedTask = todo[index];
+                    counter = deleteTask(todo, counter, index);
+                    System.out.println("Fine, I've removed this task:");
+                    System.out.println("  [" + deletedTask.getType() + "][" + deletedTask.getStatusIcon() + "] "
+                            + deletedTask.getDescription() + deletedTask.getDateTimeDescription());
+                    System.out.println("Now you have " + counter + " tasks in the list.");
                 } else if (command.equals("todo") || command.startsWith("todo ")) {
                     counter = addTask(todo, counter, new Task(command.substring(4).trim()), "todo");
                 } else if (command.equals("deadline") || command.startsWith("deadline ")) {
@@ -69,6 +77,15 @@ public class Xue {
             }
             System.out.println(separator);
         }
+    }
+
+    /** Removes a task and shifts later tasks so list numbering remains continuous. */
+    private static int deleteTask(Task[] tasks, int taskCount, int index) {
+        for (int i = index; i < taskCount - 1; i++) {
+            tasks[i] = tasks[i + 1];
+        }
+        tasks[taskCount - 1] = null;
+        return taskCount - 1;
     }
 
     /** Adds a task to the list and prints the confirmation message. */

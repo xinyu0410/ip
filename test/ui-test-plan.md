@@ -215,3 +215,41 @@ Got it. I've added this task: [E][ ] project meeting (from: Mon 2pm to: 4pm)
 3.[E][ ] project meeting (from: Mon 2pm to: 4pm)
 Finally, you're leaving. Bye. Don't make me miss you.
 ```
+
+### Test case 6: deleting tasks and preserving list numbering
+
+**Aim:** Verify that a valid delete removes the selected task, shifts later tasks, and rejects invalid task numbers.
+
+**Command:**
+
+```text
+javac -d out src/main/java/*.java; java -cp out Xue
+```
+
+**Inputs:**
+
+```text
+todo first task
+deadline second task /by Friday
+event third task /from Mon 2pm /to 4pm
+delete 2
+delete 9
+list
+bye
+```
+
+**Expected output:**
+
+```text
+The output must contain, in order:
+Got it. I've added this task: [T][ ] first task
+Got it. I've added this task: [D][ ] second task (by: Friday)
+Got it. I've added this task: [E][ ] third task (from: Mon 2pm to: 4pm)
+Fine, I've removed this task:
+  [D][ ] second task (by: Friday)
+Now you have 2 tasks in the list.
+OOPS!!! That task number does not exist. Did you just invent it?
+1.[T][ ] first task
+2.[E][ ] third task (from: Mon 2pm to: 4pm)
+Finally, you're leaving. Bye. Don't make me miss you.
+```
