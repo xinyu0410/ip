@@ -11,6 +11,9 @@ public class Task {
      * @param description the task description
      */
     public Task(String description) {
+        if (description == null || description.trim().isEmpty()) {
+            throw new XueException("The description of a todo cannot be empty. I cannot read your mind!");
+        }
         this.description = description;
         this.isDone = false;
     }

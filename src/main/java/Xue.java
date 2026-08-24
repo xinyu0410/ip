@@ -21,8 +21,8 @@ public class Xue {
 
         System.out.println(separator);
         System.out.println(banner);
-        System.out.println("Hello! I'm Xue.");
-        System.out.println("What can I do for you?");
+        System.out.println("Hello, I'm Xue. Try not to make this difficult.");
+        System.out.println("What do you want? I have work to do.");
 
         Scanner scanner = new Scanner(System.in);
         while (scanner.hasNextLine()) {
@@ -30,61 +30,63 @@ public class Xue {
             System.out.println(separator);
 
             if (command.equals("bye")) {
-                System.out.println("Bye. Hope to see you again soon!");
+                System.out.println("Finally, you're leaving. Bye. Don't make me miss you.");
                 System.out.println(separator);
                 break;
             }
 
-            if (command.equals("list")) {
-                System.out.println("Here are the tasks in your list:");
-                for (int i = 0; i < counter; i++) {
-                    System.out.println((i + 1) + ".[" + todo[i].getStatusIcon() + "] "
-                            + todo[i].getDescription());
-                }
-                System.out.println(separator);
-                continue;
-            }
-
-            if (command.startsWith("mark ")) {
-                String taskNumber = command.substring(5).trim();
-                try {
-                    int index = Integer.parseInt(taskNumber) - 1;
-                    if (index >= 0 && index < counter) {
-                        todo[index].markAsDone();
-                        System.out.println("Nice! I've marked this task as done:");
-                        System.out.println("  [X] " + todo[index].getDescription());
-                    } else {
-                        System.out.println("That task number does not exist.");
+            try {
+                if (command.equals("list")) {
+                    System.out.println("Here are your tasks. Yes, I did all the work for you:");
+                    for (int i = 0; i < counter; i++) {
+                        System.out.println((i + 1) + ".[" + todo[i].getStatusIcon() + "] "
+                                + todo[i].getDescription());
                     }
-                } catch (NumberFormatException e) {
-                    System.out.println("Please provide a valid task number.");
-                }
-                System.out.println(separator);
-                continue;
-            }
-
-            if (command.startsWith("unmark ")) {
-                String taskNumber = command.substring(7).trim();
-                try {
-                    int index = Integer.parseInt(taskNumber) - 1;
-                    if (index >= 0 && index < counter) {
-                        todo[index].markAsNotDone();
-                        System.out.println("OK, I've marked this task as not done yet:");
-                        System.out.println("  [ ] " + todo[index].getDescription());
-                    } else {
-                        System.out.println("That task number does not exist.");
+                } else if (command.equals("mark") || command.startsWith("mark ")) {
+                    int index = getTaskIndex(command, "mark", counter);
+                    todo[index].markAsDone();
+                    System.out.println("Fine, I've marked this task as done. Happy now?");
+                    System.out.println("  [X] " + todo[index].getDescription());
+                } else if (command.equals("unmark") || command.startsWith("unmark ")) {
+                    int index = getTaskIndex(command, "unmark", counter);
+                    todo[index].markAsNotDone();
+                    System.out.println("There. I've undone it. Try to make up your mind next time:");
+                    System.out.println("  [ ] " + todo[index].getDescription());
+                } else if (command.equals("todo") || command.startsWith("todo ")) {
+                    if (counter == todo.length) {
+                        throw new XueException("Your todo list is full. I refuse to carry any more of your tasks!");
                     }
-                } catch (NumberFormatException e) {
-                    System.out.println("Please provide a valid task number.");
+                    String description = command.substring(4).trim();
+                    todo[counter] = new Task(description);
+                    counter++;
+                    System.out.println("added: " + description + ". One more thing for me to deal with.");
+                } else {
+                    throw new XueException("I don't know what that means. Use a proper command next time.");
                 }
-                System.out.println(separator);
-                continue;
+            } catch (XueException e) {
+                System.out.println("OOPS!!! " + e.getMessage());
             }
-
-            todo[counter] = new Task(command);
-            counter++;
-            System.out.println("added: " + command);
             System.out.println(separator);
+        }
+    }
+
+    /** Parses and validates a task number for a mark or unmark command. */
+    private static int getTaskIndex(String command, String action, int taskCount) throws XueException {
+        String taskNumber = command.substring(action.length()).trim();
+        if (taskNumber.isEmpty()) {
+            throw new XueException("Tell me which task to " + action + ". I am not a mind reader.");
+        }
+        if (!taskNumber.matches("\\d+")) {
+            throw new XueException("That is not a valid task number. Numbers are not that complicated.");
+        }
+        try {
+            int index = Integer.parseInt(taskNumber) - 1;
+            if (index < 0 || index >= taskCount) {
+                throw new XueException("That task number does not exist. Did you just invent it?");
+            }
+            return index;
+        } catch (NumberFormatException e) {
+            throw new XueException("That is not a valid task number. Numbers are not that complicated.");
         }
     }
 }
