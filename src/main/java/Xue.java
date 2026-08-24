@@ -39,8 +39,9 @@ public class Xue {
                 if (command.equals("list")) {
                     System.out.println("Here are your tasks. Yes, I did all the work for you:");
                     for (int i = 0; i < counter; i++) {
-                        System.out.println((i + 1) + ".[" + todo[i].getStatusIcon() + "] "
-                                + todo[i].getDescription());
+                        System.out.println((i + 1) + ".[" + todo[i].getType() + "]["
+                                + todo[i].getStatusIcon() + "] " + todo[i].getDescription()
+                                + todo[i].getDateTimeDescription());
                     }
                 } else if (command.equals("mark") || command.startsWith("mark ")) {
                     int index = getTaskIndex(command, "mark", counter);
@@ -53,13 +54,13 @@ public class Xue {
                     System.out.println("There. I've undone it. Try to make up your mind next time:");
                     System.out.println("  [ ] " + todo[index].getDescription());
                 } else if (command.equals("todo") || command.startsWith("todo ")) {
-                    if (counter == todo.length) {
-                        throw new XueException("Your todo list is full. I refuse to carry any more of your tasks!");
-                    }
-                    String description = command.substring(4).trim();
-                    todo[counter] = new Task(description);
-                    counter++;
-                    System.out.println("added: " + description + ". One more thing for me to deal with.");
+                    counter = addTask(todo, counter, new Task(command.substring(4).trim()), "todo");
+                } else if (command.equals("deadline") || command.startsWith("deadline ")) {
+                    String[] parts = splitDateCommand(command, "deadline", "/by");
+                    counter = addTask(todo, counter, new Task("D", parts[0], null, parts[1]), "deadline");
+                } else if (command.equals("event") || command.startsWith("event ")) {
+                    String[] parts = splitEventCommand(command);
+                    counter = addTask(todo, counter, new Task("E", parts[0], parts[1], parts[2]), "event");
                 } else {
                     throw new XueException("I don't know what that means. Use a proper command next time.");
                 }
@@ -68,6 +69,42 @@ public class Xue {
             }
             System.out.println(separator);
         }
+    }
+
+    /** Adds a task to the list and prints the confirmation message. */
+    private static int addTask(Task[] tasks, int taskCount, Task task, String command) throws XueException {
+        if (taskCount == tasks.length) {
+            throw new XueException("Your task list is full. I refuse to carry any more of your tasks!");
+        }
+        tasks[taskCount] = task;
+        System.out.println("Got it. I've added this task: [" + task.getType() + "][ ] "
+                + task.getDescription() + task.getDateTimeDescription());
+        System.out.println("Now you have " + (taskCount + 1) + " tasks in the list.");
+        return taskCount + 1;
+    }
+
+    /** Splits a deadline command into its description and date/time. */
+    private static String[] splitDateCommand(String command, String keyword, String marker) {
+        String body = command.substring(keyword.length()).trim();
+        int markerIndex = body.indexOf(marker);
+        if (markerIndex < 0) {
+            throw new XueException("A deadline needs a /by date. Please do the minimum.");
+        }
+        return new String[] {body.substring(0, markerIndex).trim(),
+                body.substring(markerIndex + marker.length()).trim()};
+    }
+
+    /** Splits an event command into its description, start, and end. */
+    private static String[] splitEventCommand(String command) {
+        String body = command.substring("event".length()).trim();
+        int fromIndex = body.indexOf("/from");
+        int toIndex = body.indexOf("/to", fromIndex + 5);
+        if (fromIndex < 0 || toIndex < 0) {
+            throw new XueException("An event needs /from and /to times. I cannot guess your schedule.");
+        }
+        return new String[] {body.substring(0, fromIndex).trim(),
+                body.substring(fromIndex + 5, toIndex).trim(),
+                body.substring(toIndex + 3).trim()};
     }
 
     /** Parses and validates a task number for a mark or unmark command. */

@@ -182,3 +182,36 @@ OOPS!!! That task number does not exist. Did you just invent it?
 3.[X] third task
 Finally, you're leaving. Bye. Don't make me miss you.
 ```
+
+### Test case 5: task types and date/time text
+
+**Aim:** Verify that todos, deadlines, and events are accepted and displayed with their type and date/time text unchanged.
+
+**Command:**
+
+```text
+javac -d out src/main/java/*.java; java -cp out Xue
+```
+
+**Inputs:**
+
+```text
+todo borrow book
+deadline return book /by Sunday
+event project meeting /from Mon 2pm /to 4pm
+list
+bye
+```
+
+**Expected output:**
+
+```text
+The output must contain, in order:
+Got it. I've added this task: [T][ ] borrow book
+Got it. I've added this task: [D][ ] return book (by: Sunday)
+Got it. I've added this task: [E][ ] project meeting (from: Mon 2pm to: 4pm)
+1.[T][ ] borrow book
+2.[D][ ] return book (by: Sunday)
+3.[E][ ] project meeting (from: Mon 2pm to: 4pm)
+Finally, you're leaving. Bye. Don't make me miss you.
+```

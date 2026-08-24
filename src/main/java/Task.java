@@ -2,7 +2,10 @@
  * Represents a task in Xue's task list.
  */
 public class Task {
+    private final String type;
     private final String description;
+    private final String from;
+    private final String to;
     private boolean isDone;
 
     /**
@@ -11,10 +14,18 @@ public class Task {
      * @param description the task description
      */
     public Task(String description) {
+        this("T", description, null, null);
+    }
+
+    /** Creates a dated task with the supplied display details. */
+    public Task(String type, String description, String from, String to) {
         if (description == null || description.trim().isEmpty()) {
             throw new XueException("The description of a todo cannot be empty. I cannot read your mind!");
         }
+        this.type = type;
         this.description = description;
+        this.from = from;
+        this.to = to;
         this.isDone = false;
     }
 
@@ -44,5 +55,21 @@ public class Task {
      */
     public String getDescription() {
         return description;
+    }
+
+    /** Returns the one-letter task type shown in the list. */
+    public String getType() {
+        return type;
+    }
+
+    /** Returns the optional date/time suffix shown in the list. */
+    public String getDateTimeDescription() {
+        if ("D".equals(type)) {
+            return " (by: " + to + ")";
+        }
+        if ("E".equals(type)) {
+            return " (from: " + from + " to: " + to + ")";
+        }
+        return "";
     }
 }
