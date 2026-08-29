@@ -18,12 +18,6 @@ public class Xue {
      */
     public static void main(String[] args) {
         Ui ui = new Ui();
-        String separator = "________________________________________________________________________________";
-        String banner = "██   ██  ██   ██  ███████\n"
-                + " ██ ██   ██   ██  ██\n"
-                + "  ███    ██   ██  █████\n"
-                + " ██ ██   ██   ██  ██\n"
-                + "██   ██   █████   ███████";
         TaskList tasks = new TaskList();
         Storage storage = new Storage();
         List<Task> savedTasks;

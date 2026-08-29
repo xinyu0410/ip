@@ -13,16 +13,24 @@ public class TaskList {
     private final List<Task> tasks;
 
     /** Creates an empty task list. */
-    public TaskList() { this.tasks = new ArrayList<>(); }
+    public TaskList() {
+        this.tasks = new ArrayList<>();
+    }
 
     /** Creates a task list containing saved tasks. */
-    public TaskList(List<Task> savedTasks) { this.tasks = new ArrayList<>(savedTasks); }
+    public TaskList(List<Task> savedTasks) {
+        this.tasks = new ArrayList<>(savedTasks);
+    }
 
     /** Returns the number of tasks. */
-    public int size() { return tasks.size(); }
+    public int size() {
+        return tasks.size();
+    }
 
     /** Returns the task at a zero-based index. */
-    public Task get(int index) { return tasks.get(index); }
+    public Task get(int index) {
+        return tasks.get(index);
+    }
 
     /** Adds a task, enforcing Xue's task limit. */
     public void add(Task task) {
@@ -33,8 +41,12 @@ public class TaskList {
     }
 
     /** Removes and returns a task at a zero-based index. */
-    public Task delete(int index) { return tasks.remove(index); }
+    public Task delete(int index) {
+        return tasks.remove(index);
+    }
 
     /** Returns a copy for storage without exposing internal state. */
-    public List<Task> asList() { return new ArrayList<>(tasks); }
+    public List<Task> asList() {
+        return new ArrayList<>(tasks);
+    }
 }
