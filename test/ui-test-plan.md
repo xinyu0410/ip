@@ -186,7 +186,7 @@ Finally, you're leaving. Bye. Don't make me miss you.
 
 ### Test case 5: task types and date/time text
 
-**Aim:** Verify that todos, deadlines, and events are accepted and displayed with their type and date/time text unchanged.
+**Aim:** Verify that todos, deadlines, and events are accepted, while supported numeric dates are parsed and displayed in a readable format.
 
 **Command:**
 
@@ -200,6 +200,8 @@ javac -d out src/main/java/*.java; java -cp out Xue
 todo borrow book
 deadline return book /by Sunday
 event project meeting /from Mon 2pm /to 4pm
+deadline submit form /by 2019-10-15
+event conference /from 2019-10-15 0900 /to 2019-10-15 1800
 list
 bye
 ```
@@ -211,9 +213,13 @@ The output must contain, in order:
 Got it. I've added this task: [T][ ] borrow book
 Got it. I've added this task: [D][ ] return book (by: Sunday)
 Got it. I've added this task: [E][ ] project meeting (from: Mon 2pm to: 4pm)
+Got it. I've added this task: [D][ ] submit form (by: Oct 15 2019)
+Got it. I've added this task: [E][ ] conference (from: Oct 15 2019 09:00 AM to: Oct 15 2019 06:00 PM)
 1.[T][ ] borrow book
 2.[D][ ] return book (by: Sunday)
 3.[E][ ] project meeting (from: Mon 2pm to: 4pm)
+4.[D][ ] submit form (by: Oct 15 2019)
+5.[E][ ] conference (from: Oct 15 2019 09:00 AM to: Oct 15 2019 06:00 PM)
 Finally, you're leaving. Bye. Don't make me miss you.
 ```
 
