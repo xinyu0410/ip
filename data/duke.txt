@@ -1,0 +1,3 @@
+T | 0 | studyyyyyyyyyyy
+E | 0 | outing | dunno | dunno
+D | 1 | return | tue
