@@ -1,4 +1,3 @@
-import java.util.Scanner;
 import java.util.List;
 
 /**
@@ -11,113 +10,93 @@ public class Xue {
      * @param args command-line arguments, which are not used
      */
     public static void main(String[] args) {
+        Ui ui = new Ui();
         String separator = "________________________________________________________________________________";
         String banner = "██   ██  ██   ██  ███████\n"
                 + " ██ ██   ██   ██  ██\n"
                 + "  ███    ██   ██  █████\n"
                 + " ██ ██   ██   ██  ██\n"
                 + "██   ██   █████   ███████";
-        Task[] todo = new Task[100];
-        int counter = 0;
+        TaskList tasks = new TaskList();
         Storage storage = new Storage();
         List<Task> savedTasks;
         try {
             savedTasks = storage.load();
         } catch (XueException e) {
             savedTasks = List.of();
-            System.out.println("OOPS!!! " + e.getMessage());
+            ui.showError(e.getMessage());
         }
-        int savedTaskCount = Math.min(savedTasks.size(), todo.length);
-        for (int i = 0; i < savedTaskCount; i++) {
-            todo[i] = savedTasks.get(i);
-        }
-        counter = savedTaskCount;
+        tasks = new TaskList(savedTasks);
 
-        System.out.println(separator);
-        System.out.println(banner);
-        System.out.println("Hello, I'm Xue. Try not to make this difficult.");
-        System.out.println("What do you want? I have work to do.");
+        ui.showWelcome();
 
-        Scanner scanner = new Scanner(System.in);
-        while (scanner.hasNextLine()) {
-            String command = scanner.nextLine();
-            System.out.println(separator);
+        String command;
+        while ((command = ui.readCommand()) != null) {
+            ui.showLine();
 
             if (command.equals("bye")) {
                 System.out.println("Finally, you're leaving. Bye. Don't make me miss you.");
-                System.out.println(separator);
+                ui.showLine();
                 break;
             }
 
             try {
                 if (command.equals("list")) {
                     System.out.println("Here are your tasks. Yes, I did all the work for you:");
-                    for (int i = 0; i < counter; i++) {
-                        System.out.println((i + 1) + ".[" + todo[i].getType() + "]["
-                                + todo[i].getStatusIcon() + "] " + todo[i].getDescription()
-                                + todo[i].getDateTimeDescription());
+                    for (int i = 0; i < tasks.size(); i++) {
+                        Task task = tasks.get(i);
+                        System.out.println((i + 1) + ".[" + task.getType() + "]["
+                                + task.getStatusIcon() + "] " + task.getDescription()
+                                + task.getDateTimeDescription());
                     }
                 } else if (command.equals("mark") || command.startsWith("mark ")) {
-                    int index = getTaskIndex(command, "mark", counter);
-                    todo[index].markAsDone();
-                    storage.save(todo, counter);
+                    int index = getTaskIndex(command, "mark", tasks.size());
+                    tasks.get(index).markAsDone();
+                    storage.save(tasks.asList());
                     System.out.println("Fine, I've marked this task as done. Happy now?");
-                    System.out.println("  [X] " + todo[index].getDescription());
+                    System.out.println("  [X] " + tasks.get(index).getDescription());
                 } else if (command.equals("unmark") || command.startsWith("unmark ")) {
-                    int index = getTaskIndex(command, "unmark", counter);
-                    todo[index].markAsNotDone();
-                    storage.save(todo, counter);
+                    int index = getTaskIndex(command, "unmark", tasks.size());
+                    tasks.get(index).markAsNotDone();
+                    storage.save(tasks.asList());
                     System.out.println("There. I've undone it. Try to make up your mind next time:");
-                    System.out.println("  [ ] " + todo[index].getDescription());
+                    System.out.println("  [ ] " + tasks.get(index).getDescription());
                 } else if (command.equals("delete") || command.startsWith("delete ")) {
-                    int index = getTaskIndex(command, "delete", counter);
-                    Task deletedTask = todo[index];
-                    counter = deleteTask(todo, counter, index);
-                    storage.save(todo, counter);
+                    int index = getTaskIndex(command, "delete", tasks.size());
+                    Task deletedTask = tasks.delete(index);
+                    storage.save(tasks.asList());
                     System.out.println("Fine, I've removed this task:");
                     System.out.println("  [" + deletedTask.getType() + "][" + deletedTask.getStatusIcon() + "] "
                             + deletedTask.getDescription() + deletedTask.getDateTimeDescription());
-                    System.out.println("Now you have " + counter + " tasks in the list.");
+                    System.out.println("Now you have " + tasks.size() + " tasks in the list.");
                 } else if (command.equals("todo") || command.startsWith("todo ")) {
-                    counter = addTask(todo, counter, new Task(command.substring(4).trim()), "todo");
-                    storage.save(todo, counter);
+                    addTask(tasks, new Task(command.substring(4).trim()));
+                    storage.save(tasks.asList());
                 } else if (command.equals("deadline") || command.startsWith("deadline ")) {
                     String[] parts = splitDateCommand(command, "deadline", "/by");
-                    counter = addTask(todo, counter, new Task("D", parts[0], null, parts[1]), "deadline");
-                    storage.save(todo, counter);
+                    addTask(tasks, new Task("D", parts[0], null, parts[1]));
+                    storage.save(tasks.asList());
                 } else if (command.equals("event") || command.startsWith("event ")) {
                     String[] parts = splitEventCommand(command);
-                    counter = addTask(todo, counter, new Task("E", parts[0], parts[1], parts[2]), "event");
-                    storage.save(todo, counter);
+                    addTask(tasks, new Task("E", parts[0], parts[1], parts[2]));
+                    storage.save(tasks.asList());
                 } else {
                     throw new XueException("I don't know what that means. Use a proper command next time.");
                 }
             } catch (XueException e) {
-                System.out.println("OOPS!!! " + e.getMessage());
+                ui.showError(e.getMessage());
             }
-            System.out.println(separator);
+            ui.showLine();
         }
     }
 
     /** Removes a task and shifts later tasks so list numbering remains continuous. */
-    private static int deleteTask(Task[] tasks, int taskCount, int index) {
-        for (int i = index; i < taskCount - 1; i++) {
-            tasks[i] = tasks[i + 1];
-        }
-        tasks[taskCount - 1] = null;
-        return taskCount - 1;
-    }
-
     /** Adds a task to the list and prints the confirmation message. */
-    private static int addTask(Task[] tasks, int taskCount, Task task, String command) throws XueException {
-        if (taskCount == tasks.length) {
-            throw new XueException("Your task list is full. I refuse to carry any more of your tasks!");
-        }
-        tasks[taskCount] = task;
+    private static void addTask(TaskList tasks, Task task) throws XueException {
+        tasks.add(task);
         System.out.println("Got it. I've added this task: [" + task.getType() + "][ ] "
                 + task.getDescription() + task.getDateTimeDescription());
-        System.out.println("Now you have " + (taskCount + 1) + " tasks in the list.");
-        return taskCount + 1;
+        System.out.println("Now you have " + tasks.size() + " tasks in the list.");
     }
 
     /** Splits a deadline command into its description and date/time. */
