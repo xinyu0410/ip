@@ -29,6 +29,12 @@ public class Task {
         this.isDone = false;
     }
 
+    /** Creates a task while restoring its saved completion status. */
+    public Task(String type, String description, String from, String to, boolean isDone) {
+        this(type, description, from, to);
+        this.isDone = isDone;
+    }
+
     /** Marks this task as done. */
     public void markAsDone() {
         isDone = true;
@@ -71,5 +77,20 @@ public class Task {
             return " (from: " + from + " to: " + to + ")";
         }
         return "";
+    }
+
+    /** Returns the saved start time, if this is an event. */
+    public String getFrom() {
+        return from;
+    }
+
+    /** Returns the saved end or deadline time. */
+    public String getTo() {
+        return to;
+    }
+
+    /** Returns whether this task is complete. */
+    public boolean isDone() {
+        return isDone;
     }
 }

@@ -9,6 +9,7 @@ This file is the source of truth for the `test-ui` skill.
 - Feed each case's inputs through standard input exactly as written.
 - Compare output exactly unless a case documents an allowed normalization.
 - Run cases in listed order and stop immediately after the first failure.
+- Before each case, remove `data/duke.txt` if it exists so cases are isolated.
 
 ## Test cases
 
@@ -252,4 +253,40 @@ OOPS!!! That task number does not exist. Did you just invent it?
 1.[T][ ] first task
 2.[E][ ] third task (from: Mon 2pm to: 4pm)
 Finally, you're leaving. Bye. Don't make me miss you.
+```
+
+### Test case 7: saving and loading tasks
+
+**Aim:** Verify that tasks are saved after changes and restored with their type, status, description, and date/time.
+
+**Command:**
+
+```text
+javac -d out src/main/java/*.java; java -cp out Xue
+```
+
+**Inputs:**
+
+```text
+todo read book
+deadline return book /by 2026-09-01 1800
+event team meeting /from 2026-09-02 1400 /to 2026-09-02 1500
+mark 1
+bye
+```
+
+Then run the same command again with:
+
+```text
+list
+bye
+```
+
+**Expected output:**
+
+```text
+The second run must contain, in order:
+1.[T][X] read book
+2.[D][ ] return book (by: 2026-09-01 1800)
+3.[E][ ] team meeting (from: 2026-09-02 1400 to: 2026-09-02 1500)
 ```

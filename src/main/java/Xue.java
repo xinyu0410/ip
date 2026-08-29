@@ -1,4 +1,5 @@
 import java.util.Scanner;
+import java.util.List;
 
 /**
  * The main entry point for Xue.
@@ -17,7 +18,13 @@ public class Xue {
                 + " ██ ██   ██   ██  ██\n"
                 + "██   ██   █████   ███████";
         Task[] todo = new Task[100];
-        int counter = 0;
+        Storage storage = new Storage();
+        List<Task> savedTasks = storage.load();
+        int counter = Math.min(savedTasks.size(), todo.length);
+        for (int i = 0; i < counter; i++) {
+            todo[i] = savedTasks.get(i);
+        }
+        storage.save(todo, counter);
 
         System.out.println(separator);
         System.out.println(banner);
@@ -46,29 +53,35 @@ public class Xue {
                 } else if (command.equals("mark") || command.startsWith("mark ")) {
                     int index = getTaskIndex(command, "mark", counter);
                     todo[index].markAsDone();
+                    storage.save(todo, counter);
                     System.out.println("Fine, I've marked this task as done. Happy now?");
                     System.out.println("  [X] " + todo[index].getDescription());
                 } else if (command.equals("unmark") || command.startsWith("unmark ")) {
                     int index = getTaskIndex(command, "unmark", counter);
                     todo[index].markAsNotDone();
+                    storage.save(todo, counter);
                     System.out.println("There. I've undone it. Try to make up your mind next time:");
                     System.out.println("  [ ] " + todo[index].getDescription());
                 } else if (command.equals("delete") || command.startsWith("delete ")) {
                     int index = getTaskIndex(command, "delete", counter);
                     Task deletedTask = todo[index];
                     counter = deleteTask(todo, counter, index);
+                    storage.save(todo, counter);
                     System.out.println("Fine, I've removed this task:");
                     System.out.println("  [" + deletedTask.getType() + "][" + deletedTask.getStatusIcon() + "] "
                             + deletedTask.getDescription() + deletedTask.getDateTimeDescription());
                     System.out.println("Now you have " + counter + " tasks in the list.");
                 } else if (command.equals("todo") || command.startsWith("todo ")) {
                     counter = addTask(todo, counter, new Task(command.substring(4).trim()), "todo");
+                    storage.save(todo, counter);
                 } else if (command.equals("deadline") || command.startsWith("deadline ")) {
                     String[] parts = splitDateCommand(command, "deadline", "/by");
                     counter = addTask(todo, counter, new Task("D", parts[0], null, parts[1]), "deadline");
+                    storage.save(todo, counter);
                 } else if (command.equals("event") || command.startsWith("event ")) {
                     String[] parts = splitEventCommand(command);
                     counter = addTask(todo, counter, new Task("E", parts[0], parts[1], parts[2]), "event");
+                    storage.save(todo, counter);
                 } else {
                     throw new XueException("I don't know what that means. Use a proper command next time.");
                 }
