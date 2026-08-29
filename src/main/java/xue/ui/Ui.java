@@ -4,7 +4,9 @@ import java.util.Scanner;
 
 /** Handles console input and shared user-facing messages. */
 public class Ui {
+    /** Divider printed between console interactions. */
     private static final String SEPARATOR = "________________________________________________________________________________";
+    /** Reads commands entered by the user. */
     private final Scanner scanner = new Scanner(System.in);
 
     /** Displays Xue's welcome message. */

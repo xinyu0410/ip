@@ -7,7 +7,9 @@ import java.util.List;
 
 /** Stores and manages the tasks known to Xue. */
 public class TaskList {
+    /** Maximum number of tasks accepted by the application. */
     private static final int MAX_TASKS = 100;
+    /** The mutable collection owned by this task list. */
     private final List<Task> tasks;
 
     /** Creates an empty task list. */
