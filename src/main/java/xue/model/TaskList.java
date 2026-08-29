@@ -1,3 +1,7 @@
+package xue.model;
+
+import xue.XueException;
+
 import java.util.ArrayList;
 import java.util.List;
 

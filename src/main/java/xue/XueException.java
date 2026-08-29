@@ -1,3 +1,5 @@
+package xue;
+
 /**
  * Represents an input error that Xue can explain to the user.
  */
