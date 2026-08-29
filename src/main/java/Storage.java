@@ -78,4 +78,9 @@ public class Storage {
             throw new XueException("I could not save your tasks.");
         }
     }
+
+    /** Writes a managed task list to disk. */
+    public void save(List<Task> tasks) {
+        save(tasks.toArray(new Task[0]), tasks.size());
+    }
 }
