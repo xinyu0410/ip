@@ -288,3 +288,36 @@ bye
 
 **Setup:** Add malformed records with unknown types, invalid statuses, missing fields, and blank descriptions alongside one valid todo. Run `list` and verify that only the valid todo appears; Xue must not terminate.
 
+### Test case 9: finding tasks by description keyword
+
+**Aim:** Verify that `find` returns matching tasks in their original order, searches case-insensitively, and preserves task details.
+
+**Command:**
+
+```text
+javac -d out (Get-ChildItem -Recurse src/main/java -Filter *.java); java -cp out xue.Xue
+```
+
+**Inputs:**
+
+```text
+todo read book
+deadline return book /by June 6th
+todo buy milk
+find BOOK
+bye
+```
+
+**Expected output:**
+
+```text
+The output must contain, in order:
+Got it. I've added this task: [T][ ] read book
+Got it. I've added this task: [D][ ] return book (by: June 6th)
+Got it. I've added this task: [T][ ] buy milk
+Here are the matching tasks in your list:
+1.[T][ ] read book
+2.[D][ ] return book (by: June 6th)
+Finally, you're leaving. Bye. Don't make me miss you.
+```
+

@@ -4,6 +4,7 @@ import xue.XueException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /** Stores and manages the tasks known to Xue. */
 public class TaskList {
@@ -30,6 +31,18 @@ public class TaskList {
     /** Returns the task at a zero-based index. */
     public Task get(int index) {
         return tasks.get(index);
+    }
+
+    /** Returns tasks whose descriptions contain the keyword, ignoring letter case. */
+    public List<Task> find(String keyword) {
+        String normalizedKeyword = keyword.toLowerCase(Locale.ROOT);
+        List<Task> matches = new ArrayList<>();
+        for (Task task : tasks) {
+            if (task.getDescription().toLowerCase(Locale.ROOT).contains(normalizedKeyword)) {
+                matches.add(task);
+            }
+        }
+        return matches;
     }
 
     /** Adds a task, enforcing Xue's task limit. */
