@@ -20,11 +20,17 @@ public class Ui {
     }
 
     /** Reads the next command, or returns null at end of input. */
-    public String readCommand() { return scanner.hasNextLine() ? scanner.nextLine() : null; }
+    public String readCommand() {
+        return scanner.hasNextLine() ? scanner.nextLine() : null;
+    }
 
     /** Displays the standard divider. */
-    public void showLine() { System.out.println(SEPARATOR); }
+    public void showLine() {
+        System.out.println(SEPARATOR);
+    }
 
     /** Displays an error message. */
-    public void showError(String message) { System.out.println("OOPS!!! " + message); }
+    public void showError(String message) {
+        System.out.println("OOPS!!! " + message);
+    }
 }

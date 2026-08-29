@@ -18,12 +18,6 @@ public class Xue {
      */
     public static void main(String[] args) {
         Ui ui = new Ui();
-        String separator = "________________________________________________________________________________";
-        String banner = "██   ██  ██   ██  ███████\n"
-                + " ██ ██   ██   ██  ██\n"
-                + "  ███    ██   ██  █████\n"
-                + " ██ ██   ██   ██  ██\n"
-                + "██   ██   █████   ███████";
         TaskList tasks = new TaskList();
         Storage storage = new Storage();
         List<Task> savedTasks;
@@ -97,7 +91,6 @@ public class Xue {
         }
     }
 
-    /** Removes a task and shifts later tasks so list numbering remains continuous. */
     /** Adds a task to the list and prints the confirmation message. */
     private static void addTask(TaskList tasks, Task task) throws XueException {
         tasks.add(task);
