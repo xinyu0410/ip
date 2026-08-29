@@ -1,4 +1,3 @@
-import java.util.Scanner;
 import java.util.List;
 
 /**
@@ -11,6 +10,7 @@ public class Xue {
      * @param args command-line arguments, which are not used
      */
     public static void main(String[] args) {
+        Ui ui = new Ui();
         String separator = "________________________________________________________________________________";
         String banner = "██   ██  ██   ██  ███████\n"
                 + " ██ ██   ██   ██  ██\n"
@@ -24,23 +24,19 @@ public class Xue {
             savedTasks = storage.load();
         } catch (XueException e) {
             savedTasks = List.of();
-            System.out.println("OOPS!!! " + e.getMessage());
+            ui.showError(e.getMessage());
         }
         tasks = new TaskList(savedTasks);
 
-        System.out.println(separator);
-        System.out.println(banner);
-        System.out.println("Hello, I'm Xue. Try not to make this difficult.");
-        System.out.println("What do you want? I have work to do.");
+        ui.showWelcome();
 
-        Scanner scanner = new Scanner(System.in);
-        while (scanner.hasNextLine()) {
-            String command = scanner.nextLine();
-            System.out.println(separator);
+        String command;
+        while ((command = ui.readCommand()) != null) {
+            ui.showLine();
 
             if (command.equals("bye")) {
                 System.out.println("Finally, you're leaving. Bye. Don't make me miss you.");
-                System.out.println(separator);
+                ui.showLine();
                 break;
             }
 
@@ -88,9 +84,9 @@ public class Xue {
                     throw new XueException("I don't know what that means. Use a proper command next time.");
                 }
             } catch (XueException e) {
-                System.out.println("OOPS!!! " + e.getMessage());
+                ui.showError(e.getMessage());
             }
-            System.out.println(separator);
+            ui.showLine();
         }
     }
 
