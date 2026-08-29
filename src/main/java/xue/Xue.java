@@ -97,7 +97,6 @@ public class Xue {
         }
     }
 
-    /** Removes a task and shifts later tasks so list numbering remains continuous. */
     /** Adds a task to the list and prints the confirmation message. */
     private static void addTask(TaskList tasks, Task task) throws XueException {
         tasks.add(task);

@@ -12,12 +12,19 @@ import java.util.Locale;
  * Represents a task in Xue's task list.
  */
 public class Task {
+    /** The one-letter category used when the task is displayed and saved. */
     private final String type;
+    /** The text describing the work to be done. */
     private final String description;
+    /** The original event start text, or {@code null} for non-events. */
     private final String from;
+    /** The original deadline or event end text, or {@code null} for todos. */
     private final String to;
+    /** Parsed start value used to format numeric event dates. */
     private final LocalDateTime fromDateTime;
+    /** Parsed end value used to format numeric deadlines and event dates. */
     private final LocalDateTime toDateTime;
+    /** Whether this task has been completed. */
     private boolean isDone;
 
     /**
@@ -119,6 +126,7 @@ public class Task {
         return toDateTime;
     }
 
+    /** Parses supported numeric date formats, returning {@code null} for display-only text. */
     private static LocalDateTime parseDateTime(String value) {
         if (value == null || !value.matches("\\d{4}-\\d{2}-\\d{2}( \\d{4})?")) {
             return null;
@@ -132,6 +140,7 @@ public class Task {
         }
     }
 
+    /** Formats a parsed date while preserving non-numeric date text unchanged. */
     private static String formatDateTime(String original, LocalDateTime parsed) {
         if (parsed == null) {
             return original;
