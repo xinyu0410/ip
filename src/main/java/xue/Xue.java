@@ -50,12 +50,14 @@ public class Xue {
             try {
                 if (command.equals("list")) {
                     System.out.println("Here are your tasks. Yes, I did all the work for you:");
-                    for (int i = 0; i < tasks.size(); i++) {
-                        Task task = tasks.get(i);
-                        System.out.println((i + 1) + ".[" + task.getType() + "]["
-                                + task.getStatusIcon() + "] " + task.getDescription()
-                                + task.getDateTimeDescription());
+                    printTasks(tasks.asList());
+                } else if (command.equals("find") || command.startsWith("find ")) {
+                    String keyword = command.substring("find".length()).trim();
+                    if (keyword.isEmpty()) {
+                        throw new XueException("Tell me what to find. I am not a mind reader.");
                     }
+                    System.out.println("Here are the matching tasks in your list:");
+                    printTasks(tasks.find(keyword));
                 } else if (command.equals("mark") || command.startsWith("mark ")) {
                     int index = getTaskIndex(command, "mark", tasks.size());
                     tasks.get(index).markAsDone();
@@ -104,6 +106,16 @@ public class Xue {
         System.out.println("Got it. I've added this task: [" + task.getType() + "][ ] "
                 + task.getDescription() + task.getDateTimeDescription());
         System.out.println("Now you have " + tasks.size() + " tasks in the list.");
+    }
+
+    /** Prints tasks with one-based numbering for list and find commands. */
+    private static void printTasks(List<Task> tasks) {
+        for (int i = 0; i < tasks.size(); i++) {
+            Task task = tasks.get(i);
+            System.out.println((i + 1) + ".[" + task.getType() + "]["
+                    + task.getStatusIcon() + "] " + task.getDescription()
+                    + task.getDateTimeDescription());
+        }
     }
 
     /** Splits a deadline command into its description and date/time. */
