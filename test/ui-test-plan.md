@@ -22,7 +22,7 @@ This file is the source of truth for the `test-ui` skill.
 **Command:**
 
 ```text
-javac -d out src/main/java/*.java; java -cp out Xue
+javac -d out (Get-ChildItem -Recurse src/main/java -Filter *.java); java -cp out xue.Xue
 ```
 
 **Inputs:**
@@ -63,7 +63,7 @@ Finally, you're leaving. Bye. Don't make me miss you.
 **Command:**
 
 ```text
-javac -d out src/main/java/*.java; java -cp out Xue
+javac -d out (Get-ChildItem -Recurse src/main/java -Filter *.java); java -cp out xue.Xue
 ```
 
 **Inputs:**
@@ -106,7 +106,7 @@ Finally, you're leaving. Bye. Don't make me miss you.
 **Command:**
 
 ```text
-javac -d out src/main/java/*.java; java -cp out Xue
+javac -d out (Get-ChildItem -Recurse src/main/java -Filter *.java); java -cp out xue.Xue
 ```
 
 **Inputs:**
@@ -145,7 +145,7 @@ Finally, you're leaving. Bye. Don't make me miss you.
 **Command:**
 
 ```text
-javac -d out src/main/java/*.java; java -cp out Xue
+javac -d out (Get-ChildItem -Recurse src/main/java -Filter *.java); java -cp out xue.Xue
 ```
 
 **Inputs:**
@@ -191,7 +191,7 @@ Finally, you're leaving. Bye. Don't make me miss you.
 **Command:**
 
 ```text
-javac -d out src/main/java/*.java; java -cp out Xue
+javac -d out (Get-ChildItem -Recurse src/main/java -Filter *.java); java -cp out xue.Xue
 ```
 
 **Inputs:**
@@ -230,7 +230,7 @@ Finally, you're leaving. Bye. Don't make me miss you.
 **Command:**
 
 ```text
-javac -d out src/main/java/*.java; java -cp out Xue
+javac -d out (Get-ChildItem -Recurse src/main/java -Filter *.java); java -cp out xue.Xue
 ```
 
 **Inputs:**

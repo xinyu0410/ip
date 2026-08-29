@@ -1,3 +1,5 @@
+package xue.ui;
+
 import java.util.Scanner;
 
 /** Handles console input and shared user-facing messages. */
