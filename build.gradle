@@ -37,7 +37,8 @@ test {
 }
 
 application {
-    mainClass = 'seedu.duke.Duke'
+    // ShadowJar uses the application plugin's main class when creating the manifest.
+    mainClass = 'xue.Xue'
 }
 
 jar {
@@ -48,6 +49,7 @@ jar {
 }
 
 shadowJar {
+    // Produce one executable JAR containing the application and all runtime dependencies.
     archiveFileName = 'duke.jar'
 }
 

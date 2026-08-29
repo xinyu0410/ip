@@ -23,3 +23,33 @@ Prerequisites: JDK 25, update Intellij to the most recent version.
    ```
 
 **Warning:** Keep the `src\main\java` folder as the root folder for Java files (i.e., don't rename those folders or move Java files to another folder outside of this folder path), as this is the default location some tools (e.g., Gradle) expect to find Java files.
+
+## Creating and running the fat JAR
+
+This project uses the [ShadowJar](https://github.com/GradleUp/shadow) Gradle plugin to package Xue and its runtime dependencies into one executable (fat) JAR file. Ensure that Java 25 is installed, then run the following command from the project root:
+
+On Windows:
+
+```powershell
+.\gradlew.bat shadowJar
+```
+
+On macOS or Linux:
+
+```bash
+./gradlew shadowJar
+```
+
+The generated file is `build/libs/duke.jar`. Run it from the project root so that Xue can find its `data/duke.txt` file:
+
+```bash
+java -jar build/libs/duke.jar
+```
+
+On Windows PowerShell, the same command is:
+
+```powershell
+java -jar .\build\libs\duke.jar
+```
+
+To rebuild the JAR after making code changes, run `shadowJar` again. The `jar` task is disabled because only the bundled fat JAR is needed.
