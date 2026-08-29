@@ -18,13 +18,20 @@ public class Xue {
                 + " ██ ██   ██   ██  ██\n"
                 + "██   ██   █████   ███████";
         Task[] todo = new Task[100];
+        int counter = 0;
         Storage storage = new Storage();
-        List<Task> savedTasks = storage.load();
-        int counter = Math.min(savedTasks.size(), todo.length);
-        for (int i = 0; i < counter; i++) {
+        List<Task> savedTasks;
+        try {
+            savedTasks = storage.load();
+        } catch (XueException e) {
+            savedTasks = List.of();
+            System.out.println("OOPS!!! " + e.getMessage());
+        }
+        int savedTaskCount = Math.min(savedTasks.size(), todo.length);
+        for (int i = 0; i < savedTaskCount; i++) {
             todo[i] = savedTasks.get(i);
         }
-        storage.save(todo, counter);
+        counter = savedTaskCount;
 
         System.out.println(separator);
         System.out.println(banner);

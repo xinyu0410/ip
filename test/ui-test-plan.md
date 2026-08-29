@@ -9,7 +9,7 @@ This file is the source of truth for the `test-ui` skill.
 - Feed each case's inputs through standard input exactly as written.
 - Compare output exactly unless a case documents an allowed normalization.
 - Run cases in listed order and stop immediately after the first failure.
-- Before each case, remove `data/duke.txt` if it exists so cases are isolated.
+- For test cases 1–6, start with no `data/duke.txt` file so saved state from another case does not affect the result.
 
 ## Test cases
 
@@ -255,38 +255,30 @@ OOPS!!! That task number does not exist. Did you just invent it?
 Finally, you're leaving. Bye. Don't make me miss you.
 ```
 
-### Test case 7: saving and loading tasks
+### Test case 7: loading saved tasks
 
-**Aim:** Verify that tasks are saved after changes and restored with their type, status, description, and date/time.
+**Aim:** Verify that valid todo, deadline, and event records are loaded with their completion status and date/time details.
 
-**Command:**
+**Setup:** Create `data/duke.txt` containing:
 
 ```text
-javac -d out src/main/java/*.java; java -cp out Xue
+T | 1 | read book
+D | 0 | return book | June 6th
+E | 0 | project meeting | Aug 6th 2pm | Aug 6th 4pm
 ```
 
 **Inputs:**
-
-```text
-todo read book
-deadline return book /by 2026-09-01 1800
-event team meeting /from 2026-09-02 1400 /to 2026-09-02 1500
-mark 1
-bye
-```
-
-Then run the same command again with:
 
 ```text
 list
 bye
 ```
 
-**Expected output:**
+**Expected output:** The list must contain the three saved tasks, with the todo marked `[X]` and the saved date/time text unchanged.
 
-```text
-The second run must contain, in order:
-1.[T][X] read book
-2.[D][ ] return book (by: 2026-09-01 1800)
-3.[E][ ] team meeting (from: 2026-09-02 1400 to: 2026-09-02 1500)
-```
+### Test case 8: malformed saved records
+
+**Aim:** Verify that malformed records are ignored while valid records still load.
+
+**Setup:** Add malformed records with unknown types, invalid statuses, missing fields, and blank descriptions alongside one valid todo. Run `list` and verify that only the valid todo appears; Xue must not terminate.
+

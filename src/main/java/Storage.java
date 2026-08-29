@@ -5,21 +5,12 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Reads and writes Xue tasks in a stable, machine-readable text format. */
+/** Saves the current task list in a simple, consistent text format. */
 public class Storage {
-    private final Path filePath;
+    private final Path filePath = Path.of("data", "duke.txt");
 
-    /** Creates storage backed by the usual {@code data/duke.txt} file. */
-    public Storage() {
-        this(Path.of("data", "duke.txt"));
-    }
-
-    /** Creates storage backed by the specified file, useful for tests. */
-    public Storage(Path filePath) {
-        this.filePath = filePath;
-    }
-
-    /** Loads all valid saved tasks, returning an empty list for a missing file. */
+    /** Loads valid saved tasks. Malformed records are ignored so one bad line does not
+     * prevent the remaining tasks from being restored. */
     public List<Task> load() {
         if (!Files.exists(filePath)) {
             return new ArrayList<>();
@@ -27,38 +18,60 @@ public class Storage {
         try {
             List<Task> tasks = new ArrayList<>();
             for (String line : Files.readAllLines(filePath, StandardCharsets.UTF_8)) {
-                String[] fields = line.split(" \\| ", -1);
-                if (fields.length < 3 || !(fields[0].equals("T") || fields[0].equals("D")
-                        || fields[0].equals("E"))) {
-                    continue;
+                Task task = parseLine(line);
+                if (task != null) {
+                    tasks.add(task);
                 }
-                boolean done = fields[1].equals("1");
-                String from = fields[0].equals("E") ? fields[3] : null;
-                String to = fields[0].equals("T") ? null : fields[fields[0].equals("E") ? 4 : 3];
-                tasks.add(new Task(fields[0], fields[2], from, to, done));
             }
             return tasks;
-        } catch (IOException | RuntimeException e) {
+        } catch (IOException | SecurityException e) {
             throw new XueException("I could not read your saved tasks.");
         }
     }
 
-    /** Saves the current tasks and creates the parent folder when necessary. */
+    /** Converts one storage record into a task, or returns null for an invalid record. */
+    private Task parseLine(String line) {
+        if (line == null || line.trim().isEmpty()) {
+            return null;
+        }
+        String[] fields = line.split("\\s*\\|\\s*", -1);
+        if (fields.length < 3 || fields[1].length() != 1
+                || !(fields[0].equals("T") || fields[0].equals("D") || fields[0].equals("E"))
+                || !(fields[1].equals("0") || fields[1].equals("1"))
+                || fields[2].trim().isEmpty()) {
+            return null;
+        }
+        if (fields[0].equals("T") && fields.length != 3) {
+            return null;
+        }
+        if (fields[0].equals("D") && (fields.length != 4 || fields[3].trim().isEmpty())) {
+            return null;
+        }
+        if (fields[0].equals("E") && (fields.length != 5
+                || fields[3].trim().isEmpty() || fields[4].trim().isEmpty())) {
+            return null;
+        }
+        boolean isDone = fields[1].equals("1");
+        String from = fields[0].equals("E") ? fields[3].trim() : null;
+        String to = fields[0].equals("T") ? null : fields[fields[0].equals("E") ? 4 : 3].trim();
+        return new Task(fields[0], fields[2].trim(), from, to, isDone);
+    }
+
+    /** Writes all current tasks to disk, creating the data folder if needed. */
     public void save(Task[] tasks, int taskCount) {
         try {
             Files.createDirectories(filePath.getParent());
             List<String> lines = new ArrayList<>();
             for (int i = 0; i < taskCount; i++) {
                 Task task = tasks[i];
-                StringBuilder line = new StringBuilder(task.getType())
-                        .append(" | ").append(task.isDone() ? "1" : "0")
-                        .append(" | ").append(task.getDescription());
+                String line = task.getType() + " | " + (task.isDone() ? "1" : "0")
+                        + " | " + task.getDescription();
                 if ("D".equals(task.getType())) {
-                    line.append(" | ").append(task.getTo());
+                    line += " | " + task.getTo();
                 } else if ("E".equals(task.getType())) {
-                    line.append(" | ").append(task.getFrom()).append(" | ").append(task.getTo());
+                    line += " | " + task.getFrom() + " | " + task.getTo();
                 }
-                lines.add(line.toString());
+                lines.add(line);
             }
             Files.write(filePath, lines, StandardCharsets.UTF_8);
         } catch (IOException e) {

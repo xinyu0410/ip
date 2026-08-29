@@ -68,6 +68,21 @@ public class Task {
         return type;
     }
 
+    /** Returns the start time of an event, if applicable. */
+    public String getFrom() {
+        return from;
+    }
+
+    /** Returns the end time of an event or deadline, if applicable. */
+    public String getTo() {
+        return to;
+    }
+
+    /** Returns whether this task is complete. */
+    public boolean isDone() {
+        return isDone;
+    }
+
     /** Returns the optional date/time suffix shown in the list. */
     public String getDateTimeDescription() {
         if ("D".equals(type)) {
@@ -79,18 +94,4 @@ public class Task {
         return "";
     }
 
-    /** Returns the saved start time, if this is an event. */
-    public String getFrom() {
-        return from;
-    }
-
-    /** Returns the saved end or deadline time. */
-    public String getTo() {
-        return to;
-    }
-
-    /** Returns whether this task is complete. */
-    public boolean isDone() {
-        return isDone;
-    }
 }
