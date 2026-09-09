@@ -13,7 +13,17 @@ import java.util.List;
 /** Saves the current task list in a simple, consistent text format. */
 public class Storage {
     /** Location of the file used to persist tasks between runs. */
-    private final Path filePath = Path.of("data", "duke.txt");
+    private final Path filePath;
+
+    /** Creates storage using the standard data file. */
+    public Storage() {
+        this(Path.of("data", "duke.txt"));
+    }
+
+    /** Creates storage using a custom file for isolated tests. */
+    public Storage(Path filePath) {
+        this.filePath = filePath;
+    }
 
     /** Loads valid saved tasks. Malformed records are ignored so one bad line does not
      * prevent the remaining tasks from being restored. */
