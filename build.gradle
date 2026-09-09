@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'application'
     id 'com.gradleup.shadow' version '9.5.1'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
 }
 
 java {
@@ -36,9 +37,14 @@ test {
     }
 }
 
+javafx {
+    version = '17.0.7'
+    modules = ['javafx.controls']
+}
+
 application {
     // ShadowJar uses the application plugin's main class when creating the manifest.
-    mainClass = 'xue.Xue'
+    mainClass = 'xue.Launcher'
 }
 
 jar {
@@ -54,5 +60,13 @@ shadowJar {
 }
 
 run {
+    standardInput = System.in
+}
+
+tasks.register('runConsole', JavaExec) {
+    group = 'application'
+    description = 'Runs the original console application.'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'xue.Xue'
     standardInput = System.in
 }

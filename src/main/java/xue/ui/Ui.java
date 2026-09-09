@@ -4,6 +4,9 @@ import java.util.Scanner;
 
 /** Handles console input and shared user-facing messages. */
 public class Ui {
+    /** Shared welcome text used by both console and GUI front ends. */
+    public static final String WELCOME_MESSAGE = "Hello, I'm Xue. Try not to make this difficult.\n"
+            + "What do you want? I have work to do.";
     /** Divider printed between console interactions. */
     private static final String SEPARATOR = "________________________________________________________________________________";
     /** Reads commands entered by the user. */
@@ -17,8 +20,7 @@ public class Ui {
                 + "  ███    ██   ██  █████\n"
                 + " ██ ██   ██   ██  ██\n"
                 + "██   ██   █████   ███████");
-        System.out.println("Hello, I'm Xue. Try not to make this difficult.");
-        System.out.println("What do you want? I have work to do.");
+        System.out.println(WELCOME_MESSAGE);
     }
 
     /** Reads the next command, or returns null at end of input. */

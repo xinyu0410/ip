@@ -10,6 +10,7 @@ This file is the source of truth for the `test-ui` skill.
 - Compare output exactly unless a case documents an allowed normalization.
 - Run cases in listed order and stop immediately after the first failure.
 - For test cases 1–6, start with no `data/duke.txt` file so saved state from another case does not affect the result.
+- For GUI checks, run `gradlew run` from the repository root and use test case 10.
 
 ## Test cases
 
@@ -320,4 +321,24 @@ Here are the matching tasks in your list:
 2.[D][ ] return book (by: June 6th)
 Finally, you're leaving. Bye. Don't make me miss you.
 ```
+
+### Test case 10: JavaFX GUI interactions
+
+**Aim:** Verify the GUI welcome message, command submission, error handling, existing commands, and safe closing.
+
+**Command:**
+
+```text
+gradlew run
+```
+
+**Inputs and checks:**
+
+1. Confirm the welcome message is visible when the window opens.
+2. Enter `todo read book` and click **Send**; confirm both command and response appear.
+3. Enter `todo buy milk` and press **Enter**; confirm both command and response appear.
+4. Click **Send** with empty input; confirm no blank exchange is added.
+5. Enter `not a command`; confirm an `OOPS!!!` response appears.
+6. Try `list`, `find book`, `mark 1`, `unmark 1`, and `delete 1`.
+7. Close the window with its close button and confirm it exits without an error.
 
