@@ -69,6 +69,7 @@ public class Main extends Application {
         stage.setTitle("Xue");
         stage.setScene(new Scene(root, 600, 450));
         stage.show();
+        commandInput.requestFocus();
     }
 
     /** Adds both the command and response to the conversation history. */
