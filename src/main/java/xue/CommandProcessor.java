@@ -133,6 +133,8 @@ public class CommandProcessor {
             if (index < 0 || index >= tasks.size()) {
                 throw new XueException("That task number does not exist. Did you just invent it?");
             }
+            // The range check above is the contract required by every TaskList access here.
+            assert index >= 0 && index < tasks.size();
             return index;
         } catch (NumberFormatException e) {
             throw new XueException("That is not a valid task number. Numbers are not that complicated.");
@@ -145,8 +147,11 @@ public class CommandProcessor {
         if (markerIndex < 0) {
             throw new XueException("A deadline needs a /by date. Please do the minimum.");
         }
-        return new String[] {body.substring(0, markerIndex).trim(),
+        String[] parts = new String[] {body.substring(0, markerIndex).trim(),
             body.substring(markerIndex + marker.length()).trim()};
+        // The split always returns exactly a description and a deadline for a valid marker.
+        assert parts.length == 2;
+        return parts;
     }
 
     private String[] splitEventCommand(String command) {
@@ -156,8 +161,16 @@ public class CommandProcessor {
         if (fromIndex < 0 || toIndex < 0) {
             throw new XueException("An event needs /from and /to times. I cannot guess your schedule.");
         }
+<<<<<<< HEAD
         return new String[] {body.substring(0, fromIndex).trim(),
             body.substring(fromIndex + EVENT_FROM_MARKER.length(), toIndex).trim(),
             body.substring(toIndex + EVENT_TO_MARKER.length()).trim()};
+=======
+        String[] parts = new String[] {body.substring(0, fromIndex).trim(),
+            body.substring(fromIndex + 5, toIndex).trim(), body.substring(toIndex + 3).trim()};
+        // A valid event command is normalized into description, start, and end fields.
+        assert parts.length == 3;
+        return parts;
+>>>>>>> master
     }
 }

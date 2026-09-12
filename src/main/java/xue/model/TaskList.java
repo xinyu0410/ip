@@ -20,6 +20,9 @@ public class TaskList {
 
     /** Creates a task list containing saved tasks. */
     public TaskList(List<Task> savedTasks) {
+        assert savedTasks != null;
+        // Loading more than the application limit would violate the invariant enforced by add().
+        assert savedTasks.size() <= MAX_TASKS;
         this.tasks = new ArrayList<>(savedTasks);
     }
 
@@ -50,6 +53,8 @@ public class TaskList {
         if (tasks.size() == MAX_TASKS) {
             throw new XueException("Your task list is full. I refuse to carry any more of your tasks!");
         }
+        // A null task would make display, search, and storage fail later and less clearly.
+        assert task != null;
         tasks.add(task);
     }
 
