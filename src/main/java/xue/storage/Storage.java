@@ -75,6 +75,9 @@ public class Storage {
 
     /** Writes all current tasks to disk, creating the data folder if needed. */
     public void save(Task[] tasks, int taskCount) {
+        // The caller owns exactly taskCount entries; iterating beyond it would serialize stale data.
+        assert tasks != null;
+        assert taskCount >= 0 && taskCount <= tasks.length;
         try {
             Files.createDirectories(filePath.getParent());
             List<String> lines = new ArrayList<>();
