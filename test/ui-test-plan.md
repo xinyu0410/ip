@@ -344,3 +344,74 @@ gradlew run
 8. Add enough messages to exceed the window height; confirm the conversation area scrolls while the input area remains visible at the bottom.
 9. Close the window with its close button and confirm it exits without an error.
 
+### Test case 11: undo and redo
+
+**Aim:** Verify that undo reverses the latest successful mutation, redo reapplies it, and a new mutation clears redo history.
+
+**Command:**
+
+```text
+javac -d out (Get-ChildItem -Recurse src/main/java -Filter *.java); java -cp out xue.Xue
+```
+
+**Inputs:**
+
+```text
+todo first task
+todo second task
+undo
+redo
+undo
+todo replacement task
+redo
+undo
+list
+bye
+```
+
+**Expected output:**
+
+The output must contain, in order:
+
+```text
+Undo completed. Be alert next time.
+Redo completed.
+Undo completed. Be alert next time.
+OOPS!!! There is nothing to redo.
+Undo completed. Be alert next time.
+1.[T][ ] first task
+Finally, you're leaving. Bye. Don't make me miss you.
+```
+
+### Test case 12: undo and redo validation
+
+**Aim:** Verify that undo and redo reject arguments and report empty history correctly.
+
+**Command:**
+
+```text
+javac -d out (Get-ChildItem -Recurse src/main/java -Filter *.java); java -cp out xue.Xue
+```
+
+**Inputs:**
+
+```text
+undo
+redo
+undo 1
+redo 1
+bye
+```
+
+**Expected output:**
+
+The output must contain, in order:
+
+```text
+OOPS!!! Hey you need to DO before you can undo!
+OOPS!!! There is nothing to redo.
+OOPS!!! The undo command does not accept any arguments.
+OOPS!!! The redo command does not accept any arguments.
+Finally, you're leaving. Bye. Don't make me miss you.
+```
+

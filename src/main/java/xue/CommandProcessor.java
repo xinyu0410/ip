@@ -1,10 +1,12 @@
 package xue;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.List;
+
 import xue.model.Task;
 import xue.model.TaskList;
 import xue.storage.Storage;
-
-import java.util.List;
 
 /** Processes one Xue command and returns the user-facing response. */
 public class CommandProcessor {
@@ -14,6 +16,9 @@ public class CommandProcessor {
     private final TaskList tasks;
     private final Storage storage;
     private final String loadError;
+    private static final int MAX_HISTORY = 50;
+    private final Deque<HistoryEntry> undoHistory = new ArrayDeque<>();
+    private final Deque<HistoryEntry> redoHistory = new ArrayDeque<>();
 
     /** Creates a processor and restores tasks saved on disk. */
     public CommandProcessor(Storage storage) {
@@ -47,6 +52,10 @@ public class CommandProcessor {
                 return "Finally, you're leaving. Bye. Don't make me miss you.";
             } else if (command.equals("list")) {
                 return "Here are your tasks. Yes, I did all the work for you:\n" + formatTasks(tasks.asList());
+            } else if (command.equals("undo") || command.startsWith("undo ")) {
+                return undo(command);
+            } else if (command.equals("redo") || command.startsWith("redo ")) {
+                return redo(command);
             } else if (command.equals("find") || command.startsWith("find ")) {
                 String keyword = command.substring("find".length()).trim();
                 if (keyword.isEmpty()) {
@@ -77,12 +86,13 @@ public class CommandProcessor {
     private String markTask(String command, boolean shouldMark) {
         String action = shouldMark ? "mark" : "unmark";
         int index = getTaskIndex(command, action);
+        List<Task> before = snapshot();
         if (shouldMark) {
             tasks.get(index).markAsDone();
         } else {
             tasks.get(index).markAsNotDone();
         }
-        storage.save(tasks.asList());
+        saveMutation(before);
         String response = shouldMark
                 ? "Fine, I've marked this task as done. Happy now?\n  [X] "
                 : "There. I've undone it. Try to make up your mind next time:\n  [ ] ";
@@ -91,8 +101,9 @@ public class CommandProcessor {
 
     private String deleteTask(String command) {
         int index = getTaskIndex(command, "delete");
+        List<Task> before = snapshot();
         Task deletedTask = tasks.delete(index);
-        storage.save(tasks.asList());
+        saveMutation(before);
         return "Fine, I've removed this task:\n  [" + deletedTask.getType() + "]["
                 + deletedTask.getStatusIcon() + "] " + deletedTask.getDescription()
                 + deletedTask.getDateTimeDescription() + "\nNow you have " + tasks.size()
@@ -100,8 +111,9 @@ public class CommandProcessor {
     }
 
     private String addTask(Task task) {
+        List<Task> before = snapshot();
         tasks.add(task);
-        storage.save(tasks.asList());
+        saveMutation(before);
         return "Got it. I've added this task: [" + task.getType() + "][ ] " + task.getDescription()
                 + task.getDateTimeDescription() + "\nNow you have " + tasks.size() + " tasks in the list.";
     }
@@ -161,16 +173,83 @@ public class CommandProcessor {
         if (fromIndex < 0 || toIndex < 0) {
             throw new XueException("An event needs /from and /to times. I cannot guess your schedule.");
         }
-<<<<<<< HEAD
         return new String[] {body.substring(0, fromIndex).trim(),
             body.substring(fromIndex + EVENT_FROM_MARKER.length(), toIndex).trim(),
             body.substring(toIndex + EVENT_TO_MARKER.length()).trim()};
-=======
-        String[] parts = new String[] {body.substring(0, fromIndex).trim(),
-            body.substring(fromIndex + 5, toIndex).trim(), body.substring(toIndex + 3).trim()};
-        // A valid event command is normalized into description, start, and end fields.
-        assert parts.length == 3;
-        return parts;
->>>>>>> master
     }
+
+    private String undo(String command) {
+        validateHistoryCommand(command, "undo");
+        if (undoHistory.isEmpty()) {
+            throw new XueException("Hey you need to DO before you can undo!");
+        }
+        HistoryEntry entry = undoHistory.removeLast();
+        List<Task> current = snapshot();
+        try {
+            tasks.replaceWith(entry.before());
+            storage.save(tasks.asList());
+        } catch (XueException e) {
+            tasks.replaceWith(current);
+            undoHistory.addLast(entry);
+            throw e;
+        }
+        pushHistory(redoHistory, entry);
+        return "Undo completed. Be alert next time.\n"
+                + "Here are your tasks. Yes, I did all the work for you:\n" + formatTasks(tasks.asList());
+    }
+
+    private String redo(String command) {
+        validateHistoryCommand(command, "redo");
+        if (redoHistory.isEmpty()) {
+            throw new XueException("There is nothing to redo.");
+        }
+        HistoryEntry entry = redoHistory.removeLast();
+        List<Task> current = snapshot();
+        try {
+            tasks.replaceWith(entry.after());
+            storage.save(tasks.asList());
+        } catch (XueException e) {
+            tasks.replaceWith(current);
+            redoHistory.addLast(entry);
+            throw e;
+        }
+        pushHistory(undoHistory, entry);
+        return "Redo completed.\nHere are your tasks. Yes, I did all the work for you:\n"
+                + formatTasks(tasks.asList());
+    }
+
+    private void validateHistoryCommand(String command, String action) {
+        if (!command.equals(action)) {
+            throw new XueException("The " + action + " command does not accept any arguments.");
+        }
+    }
+
+    private List<Task> snapshot() {
+        List<Task> copy = new java.util.ArrayList<>();
+        for (Task task : tasks.asList()) {
+            copy.add(new Task(task));
+        }
+        return copy;
+    }
+
+    private void saveMutation(List<Task> before) {
+        List<Task> after = snapshot();
+        try {
+            storage.save(tasks.asList());
+        } catch (XueException e) {
+            tasks.replaceWith(before);
+            throw e;
+        }
+        pushHistory(undoHistory, new HistoryEntry(before, after));
+        redoHistory.clear();
+    }
+
+    private void pushHistory(Deque<HistoryEntry> history, HistoryEntry entry) {
+        history.addLast(entry);
+        while (history.size() > MAX_HISTORY) {
+            history.removeFirst();
+        }
+    }
+
+    private record HistoryEntry(List<Task> before, List<Task> after) { }
 }

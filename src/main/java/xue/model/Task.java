@@ -59,6 +59,11 @@ public class Task {
         this.isDone = isDone;
     }
 
+    /** Creates a copy of an existing task, including its completion status. */
+    public Task(Task other) {
+        this(other.type, other.description, other.from, other.to, other.isDone);
+    }
+
     /** Marks this task as done. */
     public void markAsDone() {
         isDone = true;

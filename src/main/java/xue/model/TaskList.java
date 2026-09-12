@@ -63,4 +63,17 @@ public class TaskList {
     public List<Task> asList() {
         return new ArrayList<>(tasks);
     }
+
+    /** Replaces the current tasks with copies of a previously captured valid state. */
+    public void replaceWith(List<Task> replacement) {
+        assert replacement != null;
+        if (replacement.size() > MAX_TASKS) {
+            throw new XueException("Your task list is full. I refuse to carry any more of your tasks!");
+        }
+        tasks.clear();
+        for (Task task : replacement) {
+            assert task != null;
+            tasks.add(new Task(task));
+        }
+    }
 }

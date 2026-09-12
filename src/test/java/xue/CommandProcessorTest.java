@@ -55,6 +55,52 @@ class CommandProcessorTest {
     }
 
     @Test
+    void process_undoRestoresPreviousTaskState() throws Exception {
+        CommandProcessor processor = createProcessor();
+        processor.process("todo first");
+        processor.process("todo second");
+
+        assertTrue(processor.process("undo").contains("1.[T][ ] first"));
+        assertTrue(processor.process("list").contains("1.[T][ ] first"));
+        assertTrue(!processor.process("list").contains("second"));
+    }
+
+    @Test
+    void process_undoAndRedo_restoreDeletedTaskAtOriginalPosition() throws Exception {
+        CommandProcessor processor = createProcessor();
+        processor.process("todo first");
+        processor.process("todo second");
+        processor.process("todo third");
+        processor.process("delete 2");
+
+        assertTrue(processor.process("undo").contains("2.[T][ ] second"));
+        assertTrue(processor.process("redo").contains("2.[T][ ] third"));
+    }
+
+    @Test
+    void process_undoWithoutHistory_returnsError() throws Exception {
+        assertEquals("OOPS!!! Hey you need to DO before you can undo!", createProcessor().process("undo"));
+    }
+
+    @Test
+    void process_newMutationClearsRedoHistory() throws Exception {
+        CommandProcessor processor = createProcessor();
+        processor.process("todo first");
+        processor.process("undo");
+        processor.process("todo second");
+
+        assertEquals("OOPS!!! There is nothing to redo.", processor.process("redo"));
+    }
+
+    @Test
+    void process_historyCommandsRejectArguments() throws Exception {
+        CommandProcessor processor = createProcessor();
+
+        assertEquals("OOPS!!! The undo command does not accept any arguments.", processor.process("undo 1"));
+        assertEquals("OOPS!!! The redo command does not accept any arguments.", processor.process("redo 1"));
+    }
+
+    @Test
     void process_invalidCommand_returnsError() throws Exception {
         assertTrue(createProcessor().process("unknown").startsWith("OOPS!!!"));
     }

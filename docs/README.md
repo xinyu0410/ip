@@ -1,6 +1,6 @@
 # Xue User Guide
 
-// Update the title above to match the actual product name
+Xue is a task manager that supports todos, deadlines, events, and session-only undo/redo.
 
 // Product screenshot goes here
 
@@ -8,23 +8,33 @@
 
 ## Adding deadlines
 
-// Describe the action and its outcome.
+Add a deadline with `deadline <description> /by <date>`.
 
 // Give examples of usage
 
-Example: `keyword (optional arguments)`
+Example: `deadline submit report /by Friday`
 
-// A description of the expected outcome goes here
+Xue adds the deadline and displays it in the task list.
 
 ```
-expected output
+Got it. I've added this task: [D][ ] submit report (by: Friday)
 ```
 
-## Feature ABC
+## Undoing and redoing commands
 
-// Feature details
+Use `undo` to reverse the most recent successful task-changing command:
 
+```text
+todo read book
+undo
+```
 
-## Feature XYZ
+Undo displays the current task list and starts with:
+
+```text
+Undo completed. Be alert next time.
+```
+
+Use `redo` to reapply the most recently undone command. Undo and redo history lasts only for the current session and stores up to 50 changes. Starting a new task-changing command clears redo history.
 
 // Feature details
