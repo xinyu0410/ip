@@ -36,13 +36,9 @@ public class TaskList {
     /** Returns tasks whose descriptions contain the keyword, ignoring letter case. */
     public List<Task> find(String keyword) {
         String normalizedKeyword = keyword.toLowerCase(Locale.ROOT);
-        List<Task> matches = new ArrayList<>();
-        for (Task task : tasks) {
-            if (task.getDescription().toLowerCase(Locale.ROOT).contains(normalizedKeyword)) {
-                matches.add(task);
-            }
-        }
-        return matches;
+        return tasks.stream()
+                .filter(task -> task.getDescription().toLowerCase(Locale.ROOT).contains(normalizedKeyword))
+                .toList();
     }
 
     /** Adds a task, enforcing Xue's task limit. */
