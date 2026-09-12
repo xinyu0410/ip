@@ -41,6 +41,9 @@ public class Task {
         if (description == null || description.trim().isEmpty()) {
             throw new XueException("The description of a todo cannot be empty. I cannot read your mind!");
         }
+        // Every task is displayed and persisted using one of these three categories.
+        // This catches programmer errors without replacing validation of user input.
+        assert "T".equals(type) || "D".equals(type) || "E".equals(type);
         this.type = type;
         this.description = description;
         this.from = from;
@@ -142,6 +145,8 @@ public class Task {
 
     /** Formats a parsed date while preserving non-numeric date text unchanged. */
     private static String formatDateTime(String original, LocalDateTime parsed) {
+        // A parsed value can only exist when the original text was a supported numeric date.
+        assert original != null;
         if (parsed == null) {
             return original;
         }
