@@ -8,6 +8,9 @@ import java.util.List;
 
 /** Processes one Xue command and returns the user-facing response. */
 public class CommandProcessor {
+    private static final String DEADLINE_MARKER = "/by";
+    private static final String EVENT_FROM_MARKER = "/from";
+    private static final String EVENT_TO_MARKER = "/to";
     private final TaskList tasks;
     private final Storage storage;
     private final String loadError;
@@ -73,7 +76,7 @@ public class CommandProcessor {
             } else if (command.equals("todo") || command.startsWith("todo ")) {
                 return addTask(new Task(command.substring(4).trim()));
             } else if (command.equals("deadline") || command.startsWith("deadline ")) {
-                String[] parts = splitDateCommand(command, "deadline", "/by");
+                String[] parts = splitDateCommand(command, "deadline", DEADLINE_MARKER);
                 return addTask(new Task("D", parts[0], null, parts[1]));
             } else if (command.equals("event") || command.startsWith("event ")) {
                 String[] parts = splitEventCommand(command);
@@ -137,12 +140,13 @@ public class CommandProcessor {
 
     private String[] splitEventCommand(String command) {
         String body = command.substring("event".length()).trim();
-        int fromIndex = body.indexOf("/from");
-        int toIndex = body.indexOf("/to", fromIndex + 5);
+        int fromIndex = body.indexOf(EVENT_FROM_MARKER);
+        int toIndex = body.indexOf(EVENT_TO_MARKER, fromIndex + EVENT_FROM_MARKER.length());
         if (fromIndex < 0 || toIndex < 0) {
             throw new XueException("An event needs /from and /to times. I cannot guess your schedule.");
         }
         return new String[] {body.substring(0, fromIndex).trim(),
-            body.substring(fromIndex + 5, toIndex).trim(), body.substring(toIndex + 3).trim()};
+            body.substring(fromIndex + EVENT_FROM_MARKER.length(), toIndex).trim(),
+            body.substring(toIndex + EVENT_TO_MARKER.length()).trim()};
     }
 }
