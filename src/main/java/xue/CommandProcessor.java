@@ -8,6 +8,9 @@ import java.util.List;
 
 /** Processes one Xue command and returns the user-facing response. */
 public class CommandProcessor {
+    private static final String DEADLINE_MARKER = "/by";
+    private static final String EVENT_FROM_MARKER = "/from";
+    private static final String EVENT_TO_MARKER = "/to";
     private final TaskList tasks;
     private final Storage storage;
     private final String loadError;
@@ -51,29 +54,15 @@ public class CommandProcessor {
                 }
                 return "Here are the matching tasks in your list:\n" + formatTasks(tasks.find(keyword));
             } else if (command.equals("mark") || command.startsWith("mark ")) {
-                int index = getTaskIndex(command, "mark");
-                tasks.get(index).markAsDone();
-                storage.save(tasks.asList());
-                return "Fine, I've marked this task as done. Happy now?\n  [X] "
-                        + tasks.get(index).getDescription();
+                return markTask(command, true);
             } else if (command.equals("unmark") || command.startsWith("unmark ")) {
-                int index = getTaskIndex(command, "unmark");
-                tasks.get(index).markAsNotDone();
-                storage.save(tasks.asList());
-                return "There. I've undone it. Try to make up your mind next time:\n  [ ] "
-                        + tasks.get(index).getDescription();
+                return markTask(command, false);
             } else if (command.equals("delete") || command.startsWith("delete ")) {
-                int index = getTaskIndex(command, "delete");
-                Task deletedTask = tasks.delete(index);
-                storage.save(tasks.asList());
-                return "Fine, I've removed this task:\n  [" + deletedTask.getType() + "]["
-                        + deletedTask.getStatusIcon() + "] " + deletedTask.getDescription()
-                        + deletedTask.getDateTimeDescription() + "\nNow you have " + tasks.size()
-                        + " tasks in the list.";
+                return deleteTask(command);
             } else if (command.equals("todo") || command.startsWith("todo ")) {
-                return addTask(new Task(command.substring(4).trim()));
+                return addTask(new Task(command.substring("todo".length()).trim()));
             } else if (command.equals("deadline") || command.startsWith("deadline ")) {
-                String[] parts = splitDateCommand(command, "deadline", "/by");
+                String[] parts = splitDateCommand(command, "deadline", DEADLINE_MARKER);
                 return addTask(new Task("D", parts[0], null, parts[1]));
             } else if (command.equals("event") || command.startsWith("event ")) {
                 String[] parts = splitEventCommand(command);
@@ -83,6 +72,31 @@ public class CommandProcessor {
         } catch (XueException e) {
             return "OOPS!!! " + e.getMessage();
         }
+    }
+
+    private String markTask(String command, boolean shouldMark) {
+        String action = shouldMark ? "mark" : "unmark";
+        int index = getTaskIndex(command, action);
+        if (shouldMark) {
+            tasks.get(index).markAsDone();
+        } else {
+            tasks.get(index).markAsNotDone();
+        }
+        storage.save(tasks.asList());
+        String response = shouldMark
+                ? "Fine, I've marked this task as done. Happy now?\n  [X] "
+                : "There. I've undone it. Try to make up your mind next time:\n  [ ] ";
+        return response + tasks.get(index).getDescription();
+    }
+
+    private String deleteTask(String command) {
+        int index = getTaskIndex(command, "delete");
+        Task deletedTask = tasks.delete(index);
+        storage.save(tasks.asList());
+        return "Fine, I've removed this task:\n  [" + deletedTask.getType() + "]["
+                + deletedTask.getStatusIcon() + "] " + deletedTask.getDescription()
+                + deletedTask.getDateTimeDescription() + "\nNow you have " + tasks.size()
+                + " tasks in the list.";
     }
 
     private String addTask(Task task) {
@@ -142,15 +156,21 @@ public class CommandProcessor {
 
     private String[] splitEventCommand(String command) {
         String body = command.substring("event".length()).trim();
-        int fromIndex = body.indexOf("/from");
-        int toIndex = body.indexOf("/to", fromIndex + 5);
+        int fromIndex = body.indexOf(EVENT_FROM_MARKER);
+        int toIndex = body.indexOf(EVENT_TO_MARKER, fromIndex + EVENT_FROM_MARKER.length());
         if (fromIndex < 0 || toIndex < 0) {
             throw new XueException("An event needs /from and /to times. I cannot guess your schedule.");
         }
+<<<<<<< HEAD
+        return new String[] {body.substring(0, fromIndex).trim(),
+            body.substring(fromIndex + EVENT_FROM_MARKER.length(), toIndex).trim(),
+            body.substring(toIndex + EVENT_TO_MARKER.length()).trim()};
+=======
         String[] parts = new String[] {body.substring(0, fromIndex).trim(),
             body.substring(fromIndex + 5, toIndex).trim(), body.substring(toIndex + 3).trim()};
         // A valid event command is normalized into description, start, and end fields.
         assert parts.length == 3;
         return parts;
+>>>>>>> master
     }
 }
