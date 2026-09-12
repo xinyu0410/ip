@@ -335,10 +335,13 @@ gradlew run
 **Inputs and checks:**
 
 1. Confirm the welcome message is visible when the window opens.
-2. Enter `todo read book` and click **Send**; confirm both command and response appear.
-3. Enter `todo buy milk` and press **Enter**; confirm both command and response appear.
-4. Click **Send** with empty input; confirm no blank exchange is added.
-5. Enter `not a command`; confirm an `OOPS!!!` response appears.
-6. Try `list`, `find book`, `mark 1`, `unmark 1`, and `delete 1`.
-7. Close the window with its close button and confirm it exits without an error.
+2. Confirm the bottom input area remains visible, shows the placeholder `Type your message…`, and expands horizontally when the window is widened.
+3. Enter `todo read book` and click **Send**; confirm both command and response appear, with the command bubble aligned right and the response bubble aligned left.
+4. Enter `todo buy milk` and press **Enter**; confirm both command and response appear.
+5. Press **Shift+Enter** in the input; confirm a new line is inserted without submitting, then press **Enter** to submit.
+6. Click **Send** with empty input; confirm no blank exchange is added.
+7. Enter `not a command`; confirm an `OOPS!!!` response appears.
+8. Try `list`, `find book`, `mark 1`, `unmark 1`, and `delete 1`.
+9. Add enough messages to exceed the window height; confirm the conversation scrolls while the input area remains fixed at the bottom.
+10. Close the window with its close button and confirm it exits without an error.
 

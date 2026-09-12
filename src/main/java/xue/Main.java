@@ -8,7 +8,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
+import javafx.scene.control.TextArea;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -24,7 +26,8 @@ import xue.ui.Ui;
 public class Main extends Application {
     private final CommandProcessor processor = new CommandProcessor(new Storage());
     private final VBox conversation = new VBox(8);
-    private final TextField commandInput = new TextField();
+    /** Multiline command editor; Enter submits while Shift+Enter inserts a newline. */
+    private final TextArea commandInput = new TextArea();
     private final ScrollPane chatScrollPane = new ScrollPane(conversation);
 
     /** Builds and displays the main window. */
@@ -35,13 +38,32 @@ public class Main extends Application {
         if (processor.getLoadError() != null) {
             addXueMessage("OOPS!!! " + processor.getLoadError());
         }
-        commandInput.setPromptText("Enter a command");
+        commandInput.setPromptText("Type your message…");
+        commandInput.setWrapText(true);
+        commandInput.setPrefRowCount(1);
+        commandInput.setMinHeight(42);
+        commandInput.setMaxHeight(100);
+        commandInput.setStyle("-fx-background-color: white; -fx-background-radius: 20;"
+                + " -fx-border-color: #b7cad5; -fx-border-radius: 20; -fx-padding: 8 14 8 14;"
+                + " -fx-text-fill: #203040; -fx-prompt-text-fill: #6b7c86;");
         Button sendButton = new Button("Send");
+        sendButton.setMinWidth(72);
+        sendButton.setMinHeight(40);
+        sendButton.setStyle("-fx-background-color: #4f8fc4; -fx-text-fill: white;"
+                + " -fx-background-radius: 18; -fx-font-weight: bold;");
         sendButton.setOnAction(event -> submitCommand());
-        commandInput.setOnAction(event -> submitCommand());
+        commandInput.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            if (event.getCode() == KeyCode.ENTER && !event.isShiftDown()) {
+                submitCommand();
+                event.consume();
+            }
+        });
 
         HBox inputRow = new HBox(8, commandInput, sendButton);
-        inputRow.setPadding(new Insets(8));
+        inputRow.setAlignment(Pos.CENTER);
+        inputRow.setPadding(new Insets(10, 14, 12, 14));
+        inputRow.setStyle("-fx-background-color: rgba(255,255,255,0.96);"
+                + " -fx-border-color: #c6d7df; -fx-border-width: 1 0 0 0;");
         HBox.setHgrow(commandInput, Priority.ALWAYS);
         chatScrollPane.setFitToWidth(true);
         chatScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
