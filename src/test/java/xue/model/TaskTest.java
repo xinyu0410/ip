@@ -147,7 +147,7 @@ class TaskTest {
 
     @Test
     void createTask_nullDescription_throwsXueException() {
-        assertThrows(XueException.class, () -> new Task(null));
+        assertThrows(XueException.class, () -> new Task((String) null));
     }
 
     @Test
