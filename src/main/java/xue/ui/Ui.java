@@ -5,8 +5,8 @@ import java.util.Scanner;
 /** Handles console input and shared user-facing messages. */
 public class Ui {
     /** Shared welcome text used by both console and GUI front ends. */
-    public static final String WELCOME_MESSAGE = "Hello, I'm Xue. Try not to make this difficult.\n"
-            + "What do you want? I have work to do.";
+    public static final String WELCOME_MESSAGE = "Hello, I'm Xue — your reluctantly competent task assistant.\n"
+            + "Give me a command and I will pretend it was my idea.";
     /** Divider printed between console interactions. */
     private static final String SEPARATOR = "________________________________________________________________________________";
     /** Reads commands entered by the user. */
