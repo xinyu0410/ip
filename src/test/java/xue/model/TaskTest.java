@@ -106,10 +106,8 @@ class TaskTest {
     }
 
     @Test
-    void getDateTimeDescription_unknownType_returnsEmptyDescription() {
-        Task task = new Task("X", "custom task", null, null);
-
-        assertEquals("", task.getDateTimeDescription());
+    void createTask_unknownType_throwsXueException() {
+        assertThrows(XueException.class, () -> new Task("X", "custom task", null, null));
     }
 
     @Test

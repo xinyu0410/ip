@@ -38,12 +38,12 @@ public class Task {
 
     /** Creates a dated task with the supplied display details. */
     public Task(String type, String description, String from, String to) {
+        if (!"T".equals(type) && !"D".equals(type) && !"E".equals(type)) {
+            throw new XueException("A task must be a todo, deadline, or event.");
+        }
         if (description == null || description.trim().isEmpty()) {
             throw new XueException("The description of a todo cannot be empty. I cannot read your mind!");
         }
-        // Every task is displayed and persisted using one of these three categories.
-        // This catches programmer errors without replacing validation of user input.
-        assert "T".equals(type) || "D".equals(type) || "E".equals(type);
         this.type = type;
         this.description = description;
         this.from = from;
