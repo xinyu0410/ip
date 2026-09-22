@@ -16,11 +16,21 @@ repositories {
 
 dependencies {
     String jUnitVersion = '5.14.4'
+    String javafxVersion = '17.0.7'
 
     testImplementation "org.junit.jupiter:junit-jupiter-api:${jUnitVersion}"
 
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${jUnitVersion}"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.14.4'
+
+    // Include JavaFX native libraries for every platform supported by the smoke tester.
+    // The JavaFX plugin adds the libraries for the current build platform; these extra
+    // variants ensure that the shadow JAR also works when copied to another OS.
+    ['linux', 'win', 'mac', 'mac-aarch64'].each { platform ->
+        runtimeOnly "org.openjfx:javafx-base:${javafxVersion}:${platform}"
+        runtimeOnly "org.openjfx:javafx-graphics:${javafxVersion}:${platform}"
+        runtimeOnly "org.openjfx:javafx-controls:${javafxVersion}:${platform}"
+    }
 }
 
 test {
