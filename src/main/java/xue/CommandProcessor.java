@@ -27,7 +27,7 @@ public class CommandProcessor {
         String loadingError;
         try {
             savedTasks = storage.load();
-            loadingError = null;
+            loadingError = storage.getLoadWarning();
         } catch (XueException e) {
             savedTasks = List.of();
             loadingError = e.getMessage();
@@ -36,7 +36,7 @@ public class CommandProcessor {
         loadError = loadingError;
     }
 
-    /** Returns the storage-load error, or {@code null} when loading succeeded. */
+    /** Returns a storage-load error or warning, or null when all records loaded successfully. */
     public String getLoadError() {
         return loadError;
     }

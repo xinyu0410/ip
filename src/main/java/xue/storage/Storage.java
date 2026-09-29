@@ -14,6 +14,8 @@ import java.util.List;
 public class Storage {
     /** Location of the file used to persist tasks between runs. */
     private final Path filePath;
+    /** Warning from the most recent load when one or more saved records were invalid. */
+    private String loadWarning;
 
     /** Creates storage using the standard data file. */
     public Storage() {
@@ -28,21 +30,34 @@ public class Storage {
     /** Loads valid saved tasks. Malformed records are ignored so one bad line does not
      * prevent the remaining tasks from being restored. */
     public List<Task> load() {
+        loadWarning = null;
         if (!Files.exists(filePath)) {
             return new ArrayList<>();
         }
         try {
             List<Task> tasks = new ArrayList<>();
             for (String line : Files.readAllLines(filePath, StandardCharsets.UTF_8)) {
-                Task task = parseLine(line);
+                Task task;
+                try {
+                    task = parseLine(line);
+                } catch (XueException e) {
+                    task = null;
+                }
                 if (task != null) {
                     tasks.add(task);
+                } else if (!line.isBlank()) {
+                    loadWarning = "Some saved tasks were invalid and were skipped.";
                 }
             }
             return tasks;
         } catch (IOException | SecurityException e) {
             throw new XueException("I could not read your saved tasks.");
         }
+    }
+
+    /** Returns a warning for skipped records, or null when the most recent load had none. */
+    public String getLoadWarning() {
+        return loadWarning;
     }
 
     /** Converts one storage record into a task, or returns null for an invalid record. */

@@ -130,11 +130,38 @@ class TaskTest {
     }
 
     @Test
-    void createTask_malformedDateFormat_keepsOriginalTextWithoutParsing() {
-        Task task = new Task("D", "submit form", null, "15-10-2019");
+    void createTask_invalidNumericDates_rejectsDeadlinesAndBothEventEndpoints() {
+        String[] invalidDates = {"2026-09-31 1200", "2026-02-29 1200", "2026-09-31",
+            "2026/09/24 1200", "15-10-2019", "2026.09.24", "2026-9-24 1200",
+            "2026-09-24 12:00", "2026-09-24 2400", "2026-09-24 1260",
+            "2026-09-24 1200 extra", "20260924", "", "   ", null};
+        for (String value : invalidDates) {
+            assertThrows(XueException.class, () -> new Task("D", "deadline", null, value), value);
+            assertThrows(XueException.class, () -> new Task("E", "event", value, "2026-10-01"), value);
+            assertThrows(XueException.class, () -> new Task("E", "event", "2026-09-01", value), value);
+        }
+    }
 
-        assertNull(task.getToDateTime());
-        assertEquals(" (by: 15-10-2019)", task.getDateTimeDescription());
+    @Test
+    void createTask_eventEndsBeforeStart_rejectsDatesAndTimes() {
+        assertThrows(XueException.class,
+                () -> new Task("E", "event", "2026-09-26 1600", "2026-09-25 1400"));
+        assertThrows(XueException.class,
+                () -> new Task("E", "event", "2026-09-26 1600", "2026-09-26 1400"));
+        assertThrows(XueException.class,
+                () -> new Task("E", "event", "2026-09-26", "2026-09-25"));
+        assertThrows(XueException.class,
+                () -> new Task("E", "event", "2026-09-26 1600", "2026-09-26"));
+    }
+
+    @Test
+    void createTask_validBoundaries_acceptsLeapDayMidnightAndEqualEndpoints() {
+        Task deadline = new Task("D", "leap day", null, "2028-02-29 0000");
+        assertEquals(LocalDateTime.of(2028, 2, 29, 0, 0), deadline.getToDateTime());
+        Task event = new Task("E", "instant", "2026-09-30 2359", "2026-09-30 2359");
+        assertEquals(event.getFromDateTime(), event.getToDateTime());
+        Task overnight = new Task("E", "overnight", "2026-09-30 2359", "2026-10-01 0000");
+        assertTrue(overnight.getToDateTime().isAfter(overnight.getFromDateTime()));
     }
 
     @Test

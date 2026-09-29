@@ -6,12 +6,17 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.util.Locale;
 
 /**
  * Represents a task in Xue's task list.
  */
 public class Task {
+    private static final String INVALID_DATE_MESSAGE =
+            "That date is invalid. Use yyyy-MM-dd or yyyy-MM-dd HHmm.";
+    private static final DateTimeFormatter INPUT_DATE_TIME = DateTimeFormatter
+            .ofPattern("uuuu-MM-dd HHmm").withResolverStyle(ResolverStyle.STRICT);
     /** The one-letter category used when the task is displayed and saved. */
     private final String type;
     /** The text describing the work to be done. */
@@ -48,8 +53,12 @@ public class Task {
         this.description = description;
         this.from = from;
         this.to = to;
-        this.fromDateTime = parseDateTime(from);
-        this.toDateTime = parseDateTime(to);
+        this.fromDateTime = "E".equals(type) ? parseDateTime(from) : null;
+        this.toDateTime = "T".equals(type) ? null : parseDateTime(to);
+        if ("E".equals(type) && fromDateTime != null && toDateTime != null
+                && toDateTime.isBefore(fromDateTime)) {
+            throw new XueException("An event cannot end before it starts.");
+        }
         this.isDone = false;
     }
 
@@ -134,17 +143,27 @@ public class Task {
         return toDateTime;
     }
 
-    /** Parses supported numeric date formats, returning {@code null} for display-only text. */
+    /**
+     * Parses numeric dates strictly, rejecting malformed numeric dates and missing values.
+     * Text dates remain display-only because expressions such as Sunday have no fixed date.
+     */
     private static LocalDateTime parseDateTime(String value) {
-        if (value == null || !value.matches("\\d{4}-\\d{2}-\\d{2}( \\d{4})?")) {
+        if (value == null || value.isBlank()) {
+            throw new XueException(INVALID_DATE_MESSAGE);
+        }
+        if (!value.matches("\\d{4}-\\d{2}-\\d{2}( \\d{4})?")) {
+            // Numeric date separators distinguish date typos from supported text such as 2pm.
+            if (value.matches(".*\\d\\s*[-/.]\\s*\\d.*") || value.matches("[\\d\\s]+")) {
+                throw new XueException(INVALID_DATE_MESSAGE);
+            }
             return null;
         }
         try {
             return value.length() == 10
                     ? LocalDate.parse(value, DateTimeFormatter.ISO_LOCAL_DATE).atStartOfDay()
-                    : LocalDateTime.parse(value, DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm"));
+                    : LocalDateTime.parse(value, INPUT_DATE_TIME);
         } catch (DateTimeParseException e) {
-            throw new XueException("That date is invalid. Use yyyy-MM-dd or yyyy-MM-dd HHmm.");
+            throw new XueException(INVALID_DATE_MESSAGE);
         }
     }
 
@@ -155,7 +174,7 @@ public class Task {
         if (parsed == null) {
             return original;
         }
-        String date = parsed.format(DateTimeFormatter.ofPattern("MMM dd yyyy"));
+        String date = parsed.format(DateTimeFormatter.ofPattern("MMM dd yyyy", Locale.ENGLISH));
         return original.length() > 10
                 ? date + " " + parsed.format(DateTimeFormatter.ofPattern("hh:mm a", Locale.ENGLISH))
                         .toUpperCase(Locale.ENGLISH)

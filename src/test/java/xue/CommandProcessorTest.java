@@ -120,4 +120,49 @@ class CommandProcessorTest {
         CommandProcessor processor = new CommandProcessor(new Storage(directory));
         assertEquals("I could not read your saved tasks.", processor.getLoadError());
     }
+
+    @Test
+    void process_invalidDates_preservesStorageAndRedoHistory() throws Exception {
+        Path file = Files.createTempDirectory("xue-test").resolve("duke.txt");
+        CommandProcessor processor = new CommandProcessor(new Storage(file));
+        processor.process("todo retained");
+        processor.process("todo redo me");
+        processor.process("undo");
+        String saved = Files.readString(file);
+        String listed = processor.process("list");
+        String[] commands = {"deadline impossible /by 2026-09-31 1200",
+            "deadline malformed /by 2026/09/24 1200",
+            "event impossible /from 2026-09-31 1400 /to 2026-10-01 1600",
+            "event backwards /from 2026-09-26 1600 /to 2026-09-25 1400"};
+        for (String command : commands) {
+            assertTrue(processor.process(command).startsWith("OOPS!!!"), command);
+            assertEquals(saved, Files.readString(file));
+            assertEquals(listed, processor.process("list"));
+        }
+        assertTrue(processor.process("redo").contains("2.[T][ ] redo me"));
+    }
+
+    @Test
+    void processor_invalidSavedDates_warnsAndRetainsValidTasksWithoutRewritingFile() throws Exception {
+        Path file = Files.createTempDirectory("xue-test").resolve("duke.txt");
+        String records = "T | 1 | retained\n"
+                + "D | 0 | impossible | 2026-09-31 1200\n"
+                + "D | 0 | malformed | 2026/09/24 1200\n"
+                + "E | 0 | impossible event | 2026-09-31 1400 | 2026-10-01 1600\n"
+                + "E | 0 | backwards | 2026-09-26 1600 | 2026-09-25 1400\n"
+                + "D | 0 | leap day | 2028-02-29 0000\n"
+                + "E | 1 | overnight | 2026-09-30 2359 | 2026-10-01 0000\n";
+        Files.writeString(file, records);
+        CommandProcessor processor = new CommandProcessor(new Storage(file));
+        assertEquals("Some saved tasks were invalid and were skipped.", processor.getLoadError());
+        assertEquals("Here are your tasks. Yes, I did all the work for you:\n"
+                + "1.[T][X] retained\n2.[D][ ] leap day (by: Feb 29 2028 12:00 AM)\n"
+                + "3.[E][X] overnight (from: Sep 30 2026 11:59 PM to: Oct 01 2026 12:00 AM)",
+                processor.process("list"));
+        assertEquals(records, Files.readString(file));
+        processor.process("mark 2");
+        CommandProcessor restored = new CommandProcessor(new Storage(file));
+        assertNull(restored.getLoadError());
+        assertEquals(processor.process("list"), restored.process("list"));
+    }
 }
